@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: onndaway-node-server
+    runtime: node
+    rootDir: server
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # PORT is auto-injected by Render — do NOT set it here
+      - key: MONGO_URI
+        sync: false   # Add this secret in the Render dashboard
+      - key: NEXTJS_URL
+        sync: false   # e.g. https://onndaway.vercel.app

@@ -1,0 +1,23 @@
+{
+  "name": "KLOYH",
+  "short_name": "KLOYH",
+  "description": "Contemporary clothing, shipped across India",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0135FB",
+  "theme_color": "#0135FB",
+  "icons": [
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

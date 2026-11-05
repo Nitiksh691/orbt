@@ -1,0 +1,314 @@
+import { NextRequest, NextResponse } from "next/server";
+import Razorpay from "razorpay";
+import dbConnect from "@/lib/mongodb";
+import Order from "@/models/Order";
+import MenuItem from "@/models/MenuItem";
+import Settings from "@/models/Settings";
+import Coupon from "@/models/Coupon";
+import { normalizeCartLines } from "@/lib/orderLine";
+import type { CartItem } from "@/lib/types";
+import { withLogger } from "@/lib/withLogger";
+
+function getRazorpay() {
+  return new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID!,
+    key_secret: process.env.RAZORPAY_KEY_SECRET!,
+  });
+}
+
+const _POST = async (req: NextRequest) => {
+  await dbConnect();
+
+  if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+    return NextResponse.json(
+      { error: "Razorpay credentials not configured" },
+      { status: 500 }
+    );
+  }
+
+  const idempotencyKey = req.headers.get("Idempotency-Key");
+  if (idempotencyKey) {
+    const existingOrder = await Order.findOne({ idempotencyKey, paymentMethod: "RAZORPAY" });
+    if (existingOrder) {
+      if (existingOrder.razorpayOrderId) {
+        return NextResponse.json({
+          order_id: existingOrder.razorpayOrderId,
+          amount: Math.round(existingOrder.total * 100),
+          currency: "INR",
+          internalOrderId: existingOrder._id.toString(),
+        }, { status: 200 });
+      }
+    }
+  }
+
+  const body = await req.json().catch(() => ({}));
+  const { userId, userName, userPhone, items, location, locationNotes, latitude, longitude, couponCode, scheduledTime, storeId } = body;
+  // Note: 'discount' from frontend is ignored for security.
+
+  if (!userId || !items || !location) {
+    return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+  }
+
+  // Multi-Store Serviceability Engine Check
+  const { checkServiceability } = await import("@/lib/serviceability");
+  const serviceResult = await checkServiceability({
+    latitude: latitude ?? null,
+    longitude: longitude ?? null,
+    areaName: location,
+    storeId: storeId || null,
+  });
+
+  if (!serviceResult.isServiceable || !serviceResult.store) {
+    return NextResponse.json(
+      { error: serviceResult.message || "Your delivery location is not currently serviceable by any open store." },
+      { status: 400 }
+    );
+  }
+
+  const assignedStore = serviceResult.store;
+
+  const settings = await Settings.findOne();
+  if (settings?.kitchenClosed) {
+    return NextResponse.json({ error: `Orders are closed right now. We'll be open from ${settings.kitchenOpenTime || "soon"}.` }, { status: 403 });
+  }
+
+  const normalizedItems = normalizeCartLines(items as CartItem[]);
+
+  // Calculate actual total based on DB prices
+  let serverTotal = 0;
+  let hasOnndawayFoodOrCoffee = false;
+  
+  // Collect item IDs
+  const requiredStock: Record<string, number> = {};
+  for (const item of normalizedItems) {
+    const id = item.item.id;
+    if (id) {
+      requiredStock[id] = (requiredStock[id] || 0) + item.quantity;
+    }
+  }
+
+  const itemIds = Object.keys(requiredStock);
+  const dbItems = await MenuItem.find({ _id: { $in: itemIds } }).lean();
+
+  // Check store-specific inventory overrides
+  const StoreInventory = (await import("@/models/StoreInventory")).default;
+  const storeInventories = await StoreInventory.find({
+    storeId: assignedStore.id,
+    menuItemId: { $in: itemIds },
+  }).lean();
+
+  const storeInvMap = new Map<string, any>();
+  storeInventories.forEach((inv: any) => {
+    storeInvMap.set(inv.menuItemId.toString(), inv);
+  });
+
+  for (const id of itemIds) {
+    const inv = storeInvMap.get(id);
+    if (inv) {
+      if (inv.isAvailable === false) {
+        return NextResponse.json(
+          { error: `An item in your cart is currently out of stock at ${assignedStore.name}`, itemId: id },
+          { status: 409 }
+        );
+      }
+      if (inv.stock != null && inv.stock - (inv.reservedStock || 0) < requiredStock[id]) {
+        return NextResponse.json(
+          { error: `Insufficient stock available at ${assignedStore.name}`, itemId: id },
+          { status: 409 }
+        );
+      }
+    }
+  }
+  
+  // Verify availability and calculate
+  for (const cartItem of normalizedItems) {
+    const dbItem = dbItems.find((d: any) => d._id.toString() === cartItem.item.id);
+    if (!dbItem || !dbItem.available) {
+      return NextResponse.json(
+        { error: "One or more items are currently unavailable", itemId: cartItem.item.id },
+        { status: 409 }
+      );
+    }
+
+    // Calculate unit price: base price + customizations
+    let unitPrice = dbItem.price;
+    if (cartItem.selectedCustomizations && cartItem.selectedCustomizations.length > 0) {
+       for (let i = 0; i < cartItem.selectedCustomizations.length; i++) {
+         const cust = cartItem.selectedCustomizations[i];
+         let validPrice = 0;
+         for (const cat of dbItem.customizationCategories || []) {
+           const option = cat.options.find((o: any) => o.name === cust.option && cat.name === cust.category);
+           if (option) {
+             validPrice = option.price;
+             break;
+           }
+         }
+         cartItem.selectedCustomizations[i].price = validPrice;
+         unitPrice += validPrice;
+       }
+    }
+    
+    // Override cartItem with server-calculated price
+    cartItem.unitPrice = unitPrice;
+    cartItem.item.price = dbItem.price;
+
+    // Attach vendor & consignment information
+    if (dbItem.vendorId) {
+      const vId = dbItem.vendorId.toString();
+      cartItem.vendorId = vId;
+      cartItem.item.vendorId = vId;
+      cartItem.item.vendorName = dbItem.vendorName || "";
+      cartItem.item.isConsignment = !!dbItem.isConsignment;
+    }
+
+    // Check if item is Onndaway food or coffee
+    const cat = ((dbItem.category as string) || "").toLowerCase();
+    const itemName = ((dbItem.name as string) || "").toLowerCase();
+    const world = dbItem.world as string | undefined;
+    const isConsignment = !!dbItem.isConsignment;
+
+    if (
+      cat.includes("coffee") ||
+      cat.includes("mojito") ||
+      cat.includes("beverage") ||
+      cat.includes("drink") ||
+      world === "food" ||
+      itemName.includes("coffee") ||
+      itemName.includes("mojito") ||
+      (!world && !isConsignment)
+    ) {
+      hasOnndawayFoodOrCoffee = true;
+    }
+
+    serverTotal += unitPrice * cartItem.quantity;
+  }
+
+  // Enforce single minimum order value (default 69, exempt: food & coffee)
+  const minOrder = (settings?.minOrderValue !== undefined && settings.minOrderValue > 0) ? settings.minOrderValue : 69;
+  if (!hasOnndawayFoodOrCoffee && minOrder > 0 && serverTotal < minOrder) {
+    return NextResponse.json(
+      { error: `Minimum order amount for delivery is ₹${minOrder}. Please add ₹${(minOrder - serverTotal).toFixed(0)} more (or add any coffee/food) to place your order.` },
+      { status: 400 }
+    );
+  }
+
+  let subtotal = serverTotal;
+
+  // Discount
+  let finalDiscount = 0;
+  if (couponCode) {
+    const dbCoupon = await Coupon.findOne({ code: couponCode.toUpperCase(), active: true });
+    if (dbCoupon) {
+      if (dbCoupon.type === "percentage") {
+        finalDiscount = (subtotal * dbCoupon.discount) / 100;
+      } else {
+        finalDiscount = dbCoupon.discount;
+      }
+    }
+  }
+
+  // Delivery fee calculation:
+  // Onndaway food & coffee ALWAYS get free delivery!
+  // Other orders get free delivery if subtotal >= freeDelivery minAmount
+  const freeDelThreshold = settings?.homeLayout?.freeDelivery?.enabled !== false
+    ? (Number(settings?.homeLayout?.freeDelivery?.minAmount) || 199)
+    : 0;
+  const isFreeDelivery = hasOnndawayFoodOrCoffee || (freeDelThreshold > 0 && subtotal >= freeDelThreshold);
+  const deliveryFee = isFreeDelivery ? 0 : (settings?.deliveryFee || 20);
+  serverTotal = Math.max(0, subtotal - finalDiscount + deliveryFee);
+
+  // Reject 0-value orders for Razorpay (cannot create a ₹0 payment)
+  if (serverTotal <= 0) {
+    return NextResponse.json({ error: "Order total is 0. Free checkouts are not supported via online payment." }, { status: 400 });
+  }
+
+  console.log(`[PAYMENT_CREATE_STARTED] User: ${userId}, Total: ${serverTotal}`);
+
+  // Create internal order first
+  let internalOrder;
+  try {
+    internalOrder = await Order.create({
+      idempotencyKey: idempotencyKey || undefined,
+      userId,
+      userName: userName || "Customer",
+      userPhone: userPhone || "",
+      items: normalizedItems,
+      location,
+      locationNotes: locationNotes || "",
+      latitude: latitude ?? null,
+      longitude: longitude ?? null,
+      total: serverTotal,
+      couponCode: couponCode || null,
+      discount: finalDiscount,
+      status: "payment_pending",
+      paymentMethod: "RAZORPAY",
+      paymentStatus: "PENDING",
+      paymentInitializationStatus: "PENDING",
+      storeId: assignedStore.id,
+      storeName: assignedStore.name,
+      storeAddress: assignedStore.address,
+      scheduledTime: scheduledTime || "ASAP (~15 mins)",
+      deliveryOtp: Math.floor(1000 + Math.random() * 9000).toString(),
+      messages: [],
+    });
+  } catch (error: any) {
+    if (error.code === 11000 && error.keyPattern && error.keyPattern.idempotencyKey) {
+      const existing = await Order.findOne({ idempotencyKey });
+      if (existing) {
+        if (existing.razorpayOrderId) {
+          return NextResponse.json({
+            order_id: existing.razorpayOrderId,
+            amount: Math.round(existing.total * 100),
+            currency: "INR",
+            internalOrderId: existing._id.toString(),
+          }, { status: 200 });
+        } else {
+          // Order exists but failed to create Razorpay Order previously. Resume.
+          internalOrder = existing;
+        }
+      } else {
+        throw error;
+      }
+    } else {
+      throw error;
+    }
+  }
+
+  // Now create Razorpay Order
+  const amountPaise = Math.round(serverTotal * 100);
+  
+  if (amountPaise < 100) {
+    await Order.findByIdAndDelete(internalOrder._id);
+    return NextResponse.json({ error: "Amount must be at least ₹1" }, { status: 400 });
+  }
+
+  try {
+    const razorpayOrder = await getRazorpay().orders.create({
+      amount: amountPaise,
+      currency: "INR",
+      receipt: internalOrder._id.toString(),
+    });
+
+    // Save Razorpay order ID to internal order
+    internalOrder.razorpayOrderId = razorpayOrder.id;
+    internalOrder.paymentInitializationStatus = "SUCCESS";
+    await internalOrder.save();
+
+    return NextResponse.json({
+      order_id: razorpayOrder.id,
+      amount: razorpayOrder.amount,
+      currency: razorpayOrder.currency,
+      internalOrderId: internalOrder._id.toString(),
+    }, { status: 201 });
+
+  } catch (err: unknown) {
+    // If Razorpay fails, keep the order but mark as FAILED init
+    internalOrder.paymentInitializationStatus = "FAILED";
+    await internalOrder.save();
+
+    const message = err instanceof Error ? err.message : "Failed to create Razorpay order";
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
+};
+
+export const POST = withLogger("POST /api/razorpay/create-order", _POST);

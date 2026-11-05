@@ -1,0 +1,164 @@
+"use client";
+import { useState, useEffect } from "react";
+import { DollarSign, Calendar, Plus, Wallet } from "lucide-react";
+import toast from "react-hot-toast";
+
+interface Expense {
+  _id: string;
+  amount: number;
+  category: string;
+  description: string;
+  date: string;
+}
+
+const CATEGORIES = ["Raw Materials", "Milk", "Coffee", "Matcha", "Packaging", "Rent", "Electricity", "Staff Payment", "Miscellaneous", "Other"];
+
+export default function ExpensesPage() {
+  const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Form State
+  const [amount, setAmount] = useState("");
+  const [description, setDescription] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const fetchExpenses = async () => {
+    try {
+      const res = await fetch("/api/admin/expenses", {
+        headers: { "x-admin-token": sessionStorage.getItem("otw_admin_token") || "" }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setExpenses(data);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchExpenses();
+  }, []);
+
+  const handleAddExpense = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!amount || isNaN(Number(amount))) return toast.error("Enter a valid amount");
+
+    setIsSubmitting(true);
+    try {
+      const res = await fetch("/api/admin/expenses", {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          "x-admin-token": sessionStorage.getItem("otw_admin_token") || ""
+        },
+        body: JSON.stringify({ amount: Number(amount), category: "General", description }),
+      });
+      if (res.ok) {
+        toast.success("Expense added successfully");
+        setAmount("");
+        setDescription("");
+        fetchExpenses(); // Refresh
+      } else {
+        toast.error("Failed to add expense");
+      }
+    } catch (err) {
+      toast.error("Something went wrong");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const today = new Date();
+  
+  // Helpers
+  const isSameDay = (d1: Date, d2: Date) => d1.toDateString() === d2.toDateString();
+  const getWeekNumber = (d: Date) => {
+    const d2 = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    d2.setUTCDate(d2.getUTCDate() + 4 - (d2.getUTCDay()||7));
+    const yearStart = new Date(Date.UTC(d2.getUTCFullYear(),0,1));
+    return Math.ceil((((d2.getTime() - yearStart.getTime()) / 86400000) + 1)/7);
+  };
+
+  // Summaries
+  let dailyTotal = 0, weeklyTotal = 0, monthlyTotal = 0, yearlyTotal = 0;
+
+  expenses.forEach(ex => {
+    const d = new Date(ex.date);
+    if (isSameDay(d, today)) dailyTotal += ex.amount;
+    if (d.getFullYear() === today.getFullYear() && getWeekNumber(d) === getWeekNumber(today)) weeklyTotal += ex.amount;
+    if (d.getFullYear() === today.getFullYear() && d.getMonth() === today.getMonth()) monthlyTotal += ex.amount;
+    if (d.getFullYear() === today.getFullYear()) yearlyTotal += ex.amount;
+  });
+
+  return (
+    <div>
+      <h1 style={{ fontSize: "2rem", fontWeight: 900, marginBottom: "8px", color: "var(--text-dark)" }}>Expense Tracker</h1>
+      <p style={{ color: "var(--text-muted)", marginBottom: "32px" }}>Log and monitor your business operations costs.</p>
+
+      {/* Summary Cards */}
+      <div style={{ display: "flex", gap: "20px", marginBottom: "32px", overflowX: "auto" }}>
+        <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: "16px", padding: "16px 24px", minWidth: "150px" }}>
+          <div style={{ fontSize: "0.85rem", color: "var(--text-muted)", fontWeight: 600 }}>Today</div>
+          <div style={{ fontSize: "1.5rem", fontWeight: 900, color: "#EA580C" }}>₹{dailyTotal.toLocaleString()}</div>
+        </div>
+        <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: "16px", padding: "16px 24px", minWidth: "150px" }}>
+          <div style={{ fontSize: "0.85rem", color: "var(--text-muted)", fontWeight: 600 }}>This Month</div>
+          <div style={{ fontSize: "1.5rem", fontWeight: 900, color: "#7C3AED" }}>₹{monthlyTotal.toLocaleString()}</div>
+        </div>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "32px" }}>
+        {/* Add Expense Form */}
+        <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: "16px", padding: "24px", height: "fit-content" }}>
+          <h3 style={{ fontSize: "1.2rem", fontWeight: 800, marginBottom: "20px", display: "flex", alignItems: "center", gap: "8px" }}>
+            <Plus size={20} color="var(--primary)"/> Quick Add
+          </h3>
+          <form onSubmit={handleAddExpense} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+            <div>
+              <label className="otw-label" style={{ display: "block", fontSize: "0.85rem", fontWeight: 700, color: "#334155", marginBottom: "8px" }}>Amount (₹) *</label>
+              <input type="number" className="otw-input" style={{ background: "#ffffff", border: "1px solid #cbd5e1", color: "#0f172a", borderRadius: "8px", padding: "12px 16px", width: "100%", outline: "none", fontFamily: "inherit" }} placeholder="e.g. 500" value={amount} onChange={e=>setAmount(e.target.value)} required />
+            </div>
+            <div>
+              <label className="otw-label" style={{ display: "block", fontSize: "0.85rem", fontWeight: 700, color: "#334155", marginBottom: "8px" }}>What was it for?</label>
+              <input type="text" className="otw-input" style={{ background: "#ffffff", border: "1px solid #cbd5e1", color: "#0f172a", borderRadius: "8px", padding: "12px 16px", width: "100%", outline: "none", fontFamily: "inherit" }} placeholder="e.g. Bought milk" value={description} onChange={e=>setDescription(e.target.value)} required />
+            </div>
+            <button type="submit" disabled={isSubmitting} style={{ background: "#0055ff", color: "#ffffff", border: "none", padding: "12px", borderRadius: "8px", fontWeight: 700, cursor: "pointer", marginTop: "4px", fontFamily: "inherit" }}>
+              {isSubmitting ? "Saving..." : "Save"}
+            </button>
+          </form>
+        </div>
+
+        {/* Expense History */}
+        <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: "16px", padding: "24px" }}>
+          <h3 style={{ fontSize: "1.2rem", fontWeight: 800, marginBottom: "20px", display: "flex", alignItems: "center", gap: "8px" }}>
+            <Wallet size={20} color="var(--primary)"/> Expense History
+          </h3>
+          {loading ? (
+            <div style={{ padding: "40px", textAlign: "center", color: "var(--text-muted)" }}>Loading expenses...</div>
+          ) : expenses.length === 0 ? (
+            <div style={{ padding: "40px", textAlign: "center", color: "var(--text-muted)" }}>No expenses logged yet.</div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: "12px", maxHeight: "500px", overflowY: "auto", paddingRight: "8px" }}>
+              {expenses.map((ex, i) => (
+                <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px", border: "1px solid var(--border)", borderRadius: "12px" }}>
+                  <div>
+                    <div style={{ fontWeight: 700, marginBottom: "2px", color: "#0F172A" }}>{ex.description || "Expense"}</div>
+                    <div style={{ fontSize: "0.8rem", color: "var(--text-muted)", display: "flex", alignItems: "center", gap: "6px" }}>
+                      <Calendar size={12}/> {new Date(ex.date).toLocaleDateString()}
+                    </div>
+                  </div>
+                  <div style={{ fontSize: "1.2rem", fontWeight: 900, color: "#EA580C" }}>
+                    -₹{ex.amount}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

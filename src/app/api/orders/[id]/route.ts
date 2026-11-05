@@ -1,0 +1,139 @@
+import { NextRequest, NextResponse } from "next/server";
+import dbConnect from "@/lib/mongodb";
+import Order from "@/models/Order";
+import { requireAdmin } from "@/lib/adminAuth";
+
+export async function PATCH(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  await dbConnect();
+  
+  try {
+    const params = await props.params;
+    const body = await req.json();
+    const { status, deliveryPersonId, deliveryPersonName, otp, rating, review, feedback, userId } = body;
+
+    const currentOrder = await Order.findById(params.id).lean();
+    if (!currentOrder) return NextResponse.json({ error: "Order not found" }, { status: 404 });
+
+    // 🔒 SECURITY: Verify permissions
+    const isAdmin = !requireAdmin(req);
+    const isOwner = userId && currentOrder.userId === userId;
+    const isDelivery = !!(deliveryPersonId && (
+      currentOrder.deliveryPersonId === deliveryPersonId || // assigned to this person
+      !currentOrder.deliveryPersonId                        // unassigned — self-assigning
+    ));
+    const isSelfAssigning = deliveryPersonId && !currentOrder.deliveryPersonId;
+
+    if (!isAdmin && !isOwner && !isDelivery && !isSelfAssigning) {
+      return NextResponse.json({ error: "Unauthorized to modify this order" }, { status: 403 });
+    }
+
+    // 🔒 SECURITY: Status allowlist — prevent spoofing
+    // Admin can set anything. Delivery can set out_for_delivery + delivered. Customer can only cancel.
+    const ADMIN_ONLY_STATUSES = ["preparing", "placed", "payment_pending", "cancelled"];
+    const DELIVERY_ALLOWED_STATUSES = ["out_for_delivery", "delivered"];
+    const CUSTOMER_ALLOWED_STATUSES = ["cancelled"];
+    const VALID_STATUSES = ["payment_pending", "placed", "preparing", "out_for_delivery", "delivered", "cancelled"];
+
+    if (status) {
+      if (!VALID_STATUSES.includes(status)) {
+        return NextResponse.json({ error: "Invalid status value" }, { status: 400 });
+      }
+      if (!isAdmin) {
+        // Delivery person: can set out_for_delivery or delivered
+        if (isDelivery && !DELIVERY_ALLOWED_STATUSES.includes(status)) {
+          return NextResponse.json({ error: "Delivery personnel cannot set this status" }, { status: 403 });
+        }
+        // Customer: can only cancel
+        if (isOwner && !isDelivery && !CUSTOMER_ALLOWED_STATUSES.includes(status)) {
+          return NextResponse.json({ error: "Customers cannot set this status" }, { status: 403 });
+        }
+        // Block non-delivery, non-admin from setting admin-only statuses
+        if (ADMIN_ONLY_STATUSES.includes(status) && !isDelivery && !isOwner) {
+          return NextResponse.json({ error: "This status can only be set by admin" }, { status: 403 });
+        }
+      }
+    }
+
+    if (status === "delivered") {
+      if (currentOrder.deliveryOtp && currentOrder.deliveryOtp !== otp) {
+        return NextResponse.json({ error: "Invalid Delivery OTP" }, { status: 400 });
+      }
+    } else if (status === "cancelled" && currentOrder.status !== "cancelled") {
+      const MenuItem = (await import("@/models/MenuItem")).default;
+      const StoreInventory = currentOrder.storeId ? (await import("@/models/StoreInventory")).default : null;
+      
+      const stockRestorePromises = currentOrder.items.map(async (item: any) => {
+        if (item.item && item.item.id) {
+          const p1 = MenuItem.updateOne({ _id: item.item.id }, { $inc: { stock: item.quantity } });
+          const p2 = StoreInventory
+            ? StoreInventory.updateOne(
+                { storeId: currentOrder.storeId, menuItemId: item.item.id, stock: { $ne: null } },
+                { $inc: { stock: item.quantity } }
+              )
+            : Promise.resolve();
+          return Promise.all([p1, p2]);
+        }
+      });
+      await Promise.all(stockRestorePromises);
+    }
+
+    const updateData: any = { updatedAt: new Date() };
+    if (status) updateData.status = status;
+
+    if (deliveryPersonId !== undefined) updateData.deliveryPersonId = deliveryPersonId;
+    if (deliveryPersonName !== undefined) updateData.deliveryPersonName = deliveryPersonName;
+    if (rating !== undefined) updateData.rating = rating;
+    if (review !== undefined) updateData.review = review;
+    if (feedback !== undefined) updateData.feedback = feedback;
+
+    const order = await Order.findByIdAndUpdate(params.id, updateData, { new: true }).lean();
+
+    if (!order) {
+      return NextResponse.json({ error: "Order not found" }, { status: 404 });
+    }
+
+    // Trigger WhatsApp thank you message if status changed to delivered
+    if (status === "delivered" && order.userPhone) {
+      const { sendWhatsAppMessage } = await import("@/lib/whatsapp");
+      const message = `Thank you for shopping KLOYH. We hope you love your pieces. Wear it well.`;
+      // Run asynchronously without blocking the response
+      sendWhatsAppMessage(order.userPhone, message).catch(console.error);
+    }
+
+    // 🔔 Send push notification for key status transitions
+    const PUSH_STATUSES: Record<string, { title: string; body: string }> = {
+      preparing:        { title: "🍳 Being prepared!", body: "Our kitchen is cooking your order. Hang tight!" },
+      out_for_delivery: { title: "🛵 On the way!", body: "Your rider is heading to you right now. Get ready!" },
+      delivered:        { title: "🎉 Delivered!", body: "Your food has arrived. Enjoy your meal!" },
+      cancelled:        { title: "❌ Order Cancelled", body: "Your order was cancelled. Contact support if needed." },
+    };
+    if (status && PUSH_STATUSES[status] && (order as any).pushSubscription) {
+      try {
+        const { sendPushNotification } = await import("@/lib/push");
+        const pushPayload = PUSH_STATUSES[status];
+        sendPushNotification((order as any).pushSubscription, {
+          title: pushPayload.title,
+          message: pushPayload.body,
+          url: `/track/${params.id}`,
+        }).catch(console.error); // Async non-blocking push notification
+      } catch { /* ignore push errors */ }
+    }
+
+    return NextResponse.json({ ...order, id: (order as any)._id.toString() });
+  } catch (error) {
+    console.error("Error updating order:", error);
+    return NextResponse.json({ error: "Failed to update order" }, { status: 500 });
+  }
+}
+
+export async function GET(_req: Request, props: { params: Promise<{ id: string }> }) {
+  await dbConnect();
+  try {
+    const params = await props.params;
+    const order = await Order.findById(params.id).lean();
+    if (!order) return NextResponse.json({ error: "Order not found" }, { status: 404 });
+    return NextResponse.json({ ...(order as any), id: (order as any)._id.toString() });
+  } catch (error) {
+    return NextResponse.json({ error: "Failed to fetch order" }, { status: 500 });
+  }
+}

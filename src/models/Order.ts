@@ -1,0 +1,103 @@
+import { Schema, model, models } from "mongoose";
+
+// Properly typed sub-schema replaces Schema.Types.Mixed
+// Gives Mongoose validation and makes aggregation on items fields reliable
+const CartItemSchema = new Schema(
+  {
+    cartItemId: { type: String, required: true },
+    item: {
+      id:          { type: String },
+      name:        { type: String },
+      price:       { type: Number },
+      image:       { type: String },
+      category:    { type: String },
+      description: { type: String },
+      vendorId:    { type: String, default: null },
+      vendorName:  { type: String, default: null },
+      isConsignment: { type: Boolean, default: false },
+      storeId:     { type: String, default: null },
+    },
+    quantity:             { type: Number, required: true, min: 1, default: 1 },
+    specialInstructions:  { type: String, default: "" },
+    unitPrice:            { type: Number, default: null },
+    lineDetails:          { type: String, default: "" },
+    selectedCustomizations: {
+      type: [{
+        category: { type: String },
+        option:   { type: String },
+        price:    { type: Number, default: 0 },
+      }],
+      default: [],
+    },
+    vendorId:       { type: String, default: null },
+    vendorPacked:   { type: Boolean, default: false },
+    vendorPackedAt: { type: Date, default: null },
+  },
+  { _id: false } // no extra _id per cart item — saves space
+);
+
+const OrderSchema = new Schema(
+  {
+    idempotencyKey:     { type: String, unique: true, sparse: true },
+    userId:             { type: String, required: true },
+    userName:           { type: String, required: true },
+    userPhone:          { type: String, required: true },
+    items:              { type: [CartItemSchema], required: true },
+    location:           { type: String, required: true },
+    locationNotes:      { type: String, default: "" },
+    latitude:           { type: Number, default: null },
+    longitude:          { type: Number, default: null },
+    total:              { type: Number, required: true },
+    couponCode:         { type: String, default: null },
+    discount:           { type: Number, default: 0 },
+    status:             { type: String, enum: ["payment_pending", "placed", "preparing", "out_for_delivery", "delivered", "cancelled"], default: "payment_pending" },
+    paymentStatus:      { type: String, enum: ["PENDING", "PAID", "REFUNDED"], default: "PENDING" },
+    paymentMethod:      { type: String, enum: ["COD", "RAZORPAY"], required: true },
+    paymentInitializationStatus: { type: String, enum: ["PENDING", "SUCCESS", "FAILED"], default: "PENDING" },
+    razorpayOrderId:    { type: String, default: null },
+    paymentAttempts:    {
+      type: [{ attemptId: String, status: String, method: String, createdAt: { type: Date, default: Date.now } }],
+      default: []
+    },
+    scheduledTime:      { type: String, default: null },
+    deliveryPersonId:   { type: String, default: null },
+    deliveryPersonName: { type: String, default: null },
+    deliveryOtp:        { type: String, default: null },
+    vendorPackedAt:     { type: Date, default: null },
+    messages:           {
+      type: [{ sender: String, text: String, timestamp: { type: Date, default: Date.now } }],
+      default: [],
+    },
+    // Live rider GPS — updated by rider device every ~15s while out_for_delivery
+    riderLocation: {
+      lat:       { type: Number, default: null },
+      lng:       { type: Number, default: null },
+      updatedAt: { type: Date, default: null },
+    },
+    storeId:            { type: Schema.Types.ObjectId, ref: "Store", default: null },
+    storeName:          { type: String, default: "" },
+    storeAddress:       { type: String, default: "" },
+    rating:  { type: Number, min: 1, max: 5, default: null },
+    review:  { type: String, default: null },
+    feedback: { type: String, default: null },
+    pushSubscription: { type: Schema.Types.Mixed, default: null },
+  },
+  { timestamps: true }
+);
+
+// ── Indexes ────────────────────────────────────────────────────────────────────
+// Index for sorting all orders by latest (admin dashboard / general queries)
+OrderSchema.index({ createdAt: -1 });
+// Compound index: user order history sorted by time
+OrderSchema.index({ userId: 1, createdAt: -1 });
+// Compound index: user order history filtered by status
+OrderSchema.index({ userId: 1, status: 1 });
+// Compound index: admin dashboard — latest orders by status
+OrderSchema.index({ status: 1, createdAt: -1 });
+// Compound index: delivery dashboard — assigned orders by time & status
+OrderSchema.index({ deliveryPersonId: 1, createdAt: -1 });
+OrderSchema.index({ deliveryPersonId: 1, status: 1 });
+// Store dashboard — orders assigned to a specific store
+OrderSchema.index({ storeId: 1, status: 1, createdAt: -1 });
+
+export default models.Order || model("Order", OrderSchema);

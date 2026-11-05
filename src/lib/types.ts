@@ -1,0 +1,326 @@
+export type UserRole = "user" | "delivery" | "admin";
+
+export interface AppSettings {
+  // Kitchen / order control
+  kitchenClosed?: boolean;
+  kitchenOpenTime?: string;
+  ordersPaused?: boolean;
+  // Maintenance mode
+  maintenanceMode?: boolean;
+  maintenancePhone?: string;
+  maintenanceMessage?: string;
+  // Delivery & payments
+  deliveryFee?: number;
+  onlinePaymentEnabled?: boolean;
+  codEnabled?: boolean;
+  // App mode
+  launchingSoonMode?: boolean;
+  // Banner
+  bannerText?: string;
+  bannerEnabled?: boolean;
+  bannerLink?: string;
+  // Allow any additional fields from DB without breaking types
+  [key: string]: string | number | boolean | null | undefined;
+}
+
+export interface UserProfile {
+  uid: string;
+  name: string;
+  college: string;
+  year: string;
+  phone: string;
+  image?: string;
+  gender?: string;
+  role: UserRole;
+  createdAt: string;
+  orderCount?: number;
+}
+
+export interface CustomizationOption {
+  name: string;
+  price: number;
+}
+
+export interface CustomizationCategory {
+  name: string;
+  options: CustomizationOption[];
+  required?: boolean;
+  multiple?: boolean;
+}
+
+export interface SelectedCustomization {
+  category: string;
+  option: string;
+  price: number;
+}
+
+export interface MenuItem {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  image: string;
+  category: string;
+  world?: "food" | "munchies";
+  brand?: string;
+  subcategory?: string;
+  unit?: string;
+  tags?: string[];
+  badges?: string[];
+  isDeal?: boolean;
+  orderCount: number;
+  available: boolean;
+  isPopular?: boolean;
+  isRecommended?: boolean;
+  isBanner?: boolean;
+  sortOrder?: number;
+  isLaunchingSoon?: boolean;
+  searchOnly?: boolean;
+  originalPrice?: number;
+  section?: string;
+  customizationCategories?: CustomizationCategory[];
+  details?: { label: string; value: string }[];
+  sizes?: { name: string; price: number }[];
+  hasTallSize?: boolean;
+  isConsignment?: boolean;
+  vendorId?: string | null;
+  storeId?: string | null;
+  vendorName?: string;
+  approvalStatus?: "approved" | "pending" | "rejected";
+  approvalNotes?: string;
+  createdAt?: string;
+}
+
+export interface CartItem {
+  cartItemId: string;
+  item: MenuItem;
+  quantity: number;
+  specialInstructions?: string;
+  selectedCustomizations?: SelectedCustomization[];
+  unitPrice?: number;
+  /** Full readable summary: customizations + special notes (stored on orders). */
+  lineDetails?: string;
+  vendorId?: string | null;
+  storeId?: string | null;
+  vendorPacked?: boolean;
+  vendorPackedAt?: string | Date | null;
+}
+
+export type OrderStatus = "payment_pending" | "placed" | "preparing" | "out_for_delivery" | "delivered" | "cancelled";
+
+export interface Order {
+  id: string;
+  userId: string;
+  userName: string;
+  userPhone: string;
+  items: CartItem[];
+  location: string;
+  locationNotes?: string;
+  latitude?: number | null;
+  longitude?: number | null;
+  total: number;
+  vendorPackedAt?: string | Date | null;
+  couponCode?: string;
+  discount?: number;
+  status: OrderStatus;
+  paymentStatus: "PENDING" | "PAID" | "REFUNDED";
+  paymentMethod: "COD" | "RAZORPAY";
+  paymentInitializationStatus?: "PENDING" | "SUCCESS" | "FAILED";
+  razorpayOrderId?: string;
+  paymentAttempts?: { attemptId: string; status: string; method: string; createdAt: string }[];
+  scheduledTime?: string;
+  deliveryPersonId?: string;
+  deliveryPersonName?: string;
+  deliveryOtp?: string;
+  messages?: { sender: "user" | "delivery"; text: string; timestamp: string }[];
+  rating?: number;
+  review?: string;
+  feedback?: string;
+  storeId?: string | null;
+  storeName?: string;
+  storeAddress?: string;
+  riderLocation?: { lat: number | null; lng: number | null; updatedAt: string | null } | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Coupon {
+  id: string;
+  code: string;
+  discount: number;
+  type: "percentage" | "flat";
+  firstOrderOnly: boolean;
+  active: boolean;
+  usageCount: number;
+  createdAt: string;
+}
+
+export interface Rating {
+  orderId: string;
+  userId: string;
+  rating: number;
+  feedback: string;
+  createdAt: string;
+}
+
+export interface DeliveryPerson {
+  uid: string;
+  name: string;
+  phone: string;
+  email: string;
+  activeOrders: string[];
+}
+
+export const CAMPUS_LOCATIONS = [
+  "Home",
+  "Work / Office",
+  "PG / Hostel",
+  "Friend / Family",
+];
+
+export const INDIAN_STATES = [
+  "Andhra Pradesh",
+  "Arunachal Pradesh",
+  "Assam",
+  "Bihar",
+  "Chhattisgarh",
+  "Delhi",
+  "Goa",
+  "Gujarat",
+  "Haryana",
+  "Himachal Pradesh",
+  "Jammu and Kashmir",
+  "Jharkhand",
+  "Karnataka",
+  "Kerala",
+  "Madhya Pradesh",
+  "Maharashtra",
+  "Manipur",
+  "Meghalaya",
+  "Mizoram",
+  "Nagaland",
+  "Odisha",
+  "Punjab",
+  "Rajasthan",
+  "Sikkim",
+  "Tamil Nadu",
+  "Telangana",
+  "Tripura",
+  "Uttar Pradesh",
+  "Uttarakhand",
+  "West Bengal",
+  "Andaman and Nicobar Islands",
+  "Chandigarh",
+  "Dadra and Nagar Haveli and Daman and Diu",
+  "Ladakh",
+  "Lakshadweep",
+  "Puducherry",
+];
+
+export type AddressType = "home" | "work" | "other";
+
+export interface ShippingAddress {
+  fullName?: string;
+  phone?: string;
+  line1: string;
+  line2?: string;
+  landmark?: string;
+  city: string;
+  state: string;
+  pincode: string;
+  addressType?: AddressType;
+}
+
+export const COLLEGES = [
+  "IIT Delhi",
+  "IIT Bombay",
+  "IIT Madras",
+  "IIT Kanpur",
+  "IIT Kharagpur",
+  "BITS Pilani",
+  "NIT Trichy",
+  "NIT Warangal",
+  "VIT Vellore",
+  "Manipal Institute",
+  "Christ University",
+  "Amity University",
+  "Other (Type below)",
+];
+
+export const YEARS = ["1st Year", "2nd Year", "3rd Year", "4th Year", "5th Year", "PG / Masters", "PhD"];
+
+export interface Brand {
+  id: string;
+  name: string;
+  slug: string;
+  image?: string;
+  banner?: string;
+  description?: string;
+  active: boolean;
+  sortOrder: number;
+}
+
+export interface StoreCategory {
+  id: string;
+  name: string;
+  slug: string;
+  image?: string;
+  type: "food" | "store";
+  active: boolean;
+  sortOrder: number;
+  subcategories: string[];
+}
+
+export interface Store {
+  id: string;
+  name: string;
+  slug: string;
+  code: string;
+  address: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  postalCode?: string;
+  location: {
+    type: "Point";
+    coordinates: [number, number]; // [lng, lat]
+  };
+  serviceRadiusKm: number;
+  serviceAreas: string[];
+  isActive: boolean;
+  isAcceptingOrders: boolean;
+  isBusy: boolean;
+  openingTime: string;
+  closingTime: string;
+  minOrderValue: number;
+  deliveryFee: number;
+  estimatedDeliveryMins: number;
+  phone: string;
+  pin?: string;
+  managerName?: string;
+  banner?: string;
+  notes?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface StoreInventory {
+  id: string;
+  storeId: string;
+  menuItemId: string;
+  stock: number | null;
+  reservedStock: number;
+  isAvailable: boolean;
+  price: number | null;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface ServiceabilityResult {
+  isServiceable: boolean;
+  store: Store | null;
+  distanceKm?: number;
+  message: string;
+  availableStores?: { id: string; name: string; address: string; serviceAreas: string[] }[];
+  allAreas?: string[];
+}

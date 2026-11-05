@@ -1,0 +1,234 @@
+"use client";
+import { useState, useEffect } from "react";
+import { X, ArrowRight, MapPin, Shirt, Shield, Clock } from "lucide-react";
+import { LocationModal, useDeliveryLocation } from "./LocationModal";
+
+export default function OnboardingModal({ onLoginClick }: { onLoginClick: () => void }) {
+  const [show, setShow] = useState(false);
+  const [showLocationModal, setShowLocationModal] = useState(false);
+  const { location, saveLocation } = useDeliveryLocation();
+
+  useEffect(() => {
+    const hasOnboarded = localStorage.getItem("otw_onboarded");
+    const userId = localStorage.getItem("otw_user_id");
+    if (!hasOnboarded && !userId) {
+      setShow(true);
+    }
+  }, []);
+
+  const handleClose = () => {
+    localStorage.setItem("otw_onboarded", "true");
+    setShow(false);
+  };
+
+  const handleSetLocation = () => {
+    setShowLocationModal(true);
+  };
+
+  const handleLocationSaved = (loc: string) => {
+    saveLocation(loc);
+    setShowLocationModal(false);
+    // Auto-close onboarding after location is set
+    setTimeout(() => handleClose(), 600);
+  };
+
+  const handleLogin = () => {
+    handleClose();
+    onLoginClick();
+  };
+
+  if (!show) return null;
+
+  return (
+    <>
+      <div style={{
+        position: "fixed", inset: 0, zIndex: 9998,
+        display: "flex", alignItems: "center", justifyContent: "center", padding: "20px",
+      }}>
+        {/* Backdrop */}
+        <div
+          style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.65)", backdropFilter: "blur(8px)" }}
+          onClick={handleClose}
+        />
+
+        <div className="onboard-modal-inner">
+          <style>{`
+            @keyframes onboard-pop {
+              from { opacity: 0; transform: scale(0.93) translateY(20px); }
+              to { opacity: 1; transform: scale(1) translateY(0); }
+            }
+            .onboard-modal-inner {
+              position: relative; width: 100%; max-width: 440px; z-index: 9999;
+              background: white; border-radius: 24px; overflow: hidden;
+              box-shadow: 0 32px 80px rgba(0,0,0,0.35);
+              animation: onboard-pop 0.35s cubic-bezier(0.16,1,0.3,1) both;
+            }
+            .onboard-hero {
+              background: linear-gradient(135deg, #0135FB 0%, #0028D4 60%, #001899 100%);
+              padding: 40px 28px 24px; text-align: center; position: relative; overflow: hidden;
+            }
+            .onboard-hero-emoji { font-size: 3.2rem; margin-bottom: 12px; }
+            .onboard-hero-title { font-size: 1.75rem; }
+            .onboard-content { padding: 24px 28px; }
+            .onboard-info-row { gap: 16px; margin-bottom: 24px; }
+            .onboard-trust { margin-bottom: 24px; }
+            
+            @media (max-width: 480px) {
+              .onboard-hero { padding: 20px 16px 16px; }
+              .onboard-hero-emoji { font-size: 2.2rem; margin-bottom: 8px; }
+              .onboard-hero-title { font-size: 1.4rem; }
+              .onboard-hero p { font-size: 0.8rem; line-height: 1.4; }
+              .onboard-content { padding: 16px; }
+              .onboard-info-row { gap: 12px; margin-bottom: 16px; }
+              .onboard-trust { margin-bottom: 16px; gap: 4px; }
+              .onboard-trust div { font-size: 0.65rem !important; padding: 4px 8px !important; }
+              .onboard-modal-inner { border-radius: 20px; }
+              .info-icon { width: 32px !important; height: 32px !important; }
+              .info-icon svg { width: 16px; height: 16px; }
+              .info-text h4 { font-size: 0.85rem !important; }
+              .info-text p { font-size: 0.75rem !important; display: none; } /* Hide descriptions to save big space */
+            }
+          `}</style>
+
+          {/* Close button */}
+          <button onClick={handleClose} style={{
+            position: "absolute", top: 16, right: 16, zIndex: 2,
+            width: 32, height: 32, borderRadius: "50%", border: "none",
+            background: "rgba(255,255,255,0.25)", color: "white",
+            display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer",
+          }}>
+            <X size={16} />
+          </button>
+
+          {/* Hero Header */}
+          <div className="onboard-hero">
+            {/* Decorative blobs */}
+            <div style={{ position: "absolute", width: 180, height: 180, borderRadius: "50%", background: "rgba(255,255,255,0.05)", top: -60, right: -40, pointerEvents: "none" }} />
+            <div style={{ position: "absolute", width: 120, height: 120, borderRadius: "50%", background: "rgba(255,255,255,0.04)", bottom: -30, left: -20, pointerEvents: "none" }} />
+
+            {/* Emoji */}
+            <div className="onboard-hero-emoji">✦</div>
+            <h2 className="onboard-hero-title" style={{
+              fontFamily: "'Outfit', sans-serif", fontWeight: 900,
+              color: "white", lineHeight: 1.1,
+              textTransform: "uppercase", letterSpacing: "-0.01em", marginBottom: "4px",
+            }}>
+              KLOYH
+            </h2>
+            <p style={{ color: "rgba(255,255,255,0.82)", fontSize: "0.9rem", lineHeight: 1.55 }}>
+              Clothing designed to be worn.<br />Shipped across India.
+            </p>
+          </div>
+
+          {/* Content */}
+          <div className="onboard-content">
+            {/* Trust pills */}
+            <div className="onboard-trust" style={{ display: "flex", gap: "8px", flexWrap: "wrap", justifyContent: "center" }}>
+              {[
+                { icon: <Clock size={13} />, text: "3–5 day shipping" },
+                { icon: <Shirt size={13} />, text: "New drops" },
+                { icon: <MapPin size={13} />, text: "Pan-India" },
+              ].map(({ icon, text }) => (
+                <div key={text} style={{
+                  display: "flex", alignItems: "center", gap: "5px",
+                  padding: "5px 10px", borderRadius: "99px",
+                  background: "#EEF1FF", color: "#0135FB",
+                  fontSize: "0.75rem", fontWeight: 700,
+                }}>
+                  {icon} {text}
+                </div>
+              ))}
+            </div>
+
+            {/* Info rows */}
+            <div className="onboard-info-row" style={{ display: "flex", flexDirection: "column" }}>
+              <div style={{ display: "flex", gap: "14px", alignItems: "center" }}>
+                <div className="info-icon" style={{
+                  width: 38, height: 38, borderRadius: "10px",
+                  background: "#EEF1FF", display: "flex", alignItems: "center",
+                  justifyContent: "center", flexShrink: 0,
+                }}>
+                  <MapPin size={18} color="#0135FB" />
+                </div>
+                <div className="info-text">
+                  <h4 style={{ fontWeight: 800, fontSize: "0.92rem", color: "#0A0F2E", marginBottom: "3px" }}>Ship anywhere in India</h4>
+                  <p style={{ fontSize: "0.8rem", color: "#6B7280", lineHeight: 1.5 }}>
+                    Add a full shipping address so we can send your order to the right door.
+                  </p>
+                </div>
+              </div>
+
+              <div style={{ display: "flex", gap: "14px", alignItems: "center" }}>
+                <div className="info-icon" style={{
+                  width: 38, height: 38, borderRadius: "10px",
+                  background: "#FEF3C7", display: "flex", alignItems: "center",
+                  justifyContent: "center", flexShrink: 0,
+                }}>
+                  <Shield size={18} color="#92400E" />
+                </div>
+                <div className="info-text">
+                  <h4 style={{ fontWeight: 800, fontSize: "0.92rem", color: "#0A0F2E", marginBottom: "3px" }}>Pay your way, no stress</h4>
+                  <p style={{ fontSize: "0.8rem", color: "#6B7280", lineHeight: 1.5 }}>
+                    Pay securely online, or cash on delivery where available.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Primary CTA */}
+            <button
+              onClick={handleSetLocation}
+              style={{
+                width: "100%", padding: "15px", borderRadius: "12px",
+                background: "linear-gradient(135deg, #0135FB, #0028D4)",
+                color: "white", border: "none", fontWeight: 800,
+                fontSize: "0.95rem", cursor: "pointer", fontFamily: "inherit",
+                display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
+                boxShadow: "0 6px 20px rgba(1,53,251,0.35)",
+                transition: "transform 0.15s, box-shadow 0.15s",
+                textTransform: "uppercase", letterSpacing: "0.5px",
+              }}
+              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-1px)"; (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 8px 24px rgba(1,53,251,0.45)"; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0)"; (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 6px 20px rgba(1,53,251,0.35)"; }}
+            >
+              <MapPin size={17} /> Add shipping address <ArrowRight size={17} />
+            </button>
+
+            {/* Secondary CTAs */}
+            <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
+              <button
+                onClick={handleLogin}
+                style={{
+                  flex: 1, padding: "11px", borderRadius: "10px",
+                  border: "1.5px solid #0135FB", background: "white",
+                  color: "#0135FB", fontWeight: 700, fontSize: "0.85rem",
+                  cursor: "pointer", fontFamily: "inherit",
+                }}
+              >
+                Log in
+              </button>
+              <button
+                onClick={handleClose}
+                style={{
+                  flex: 1, padding: "11px", borderRadius: "10px",
+                  border: "1.5px solid #E5E7EB", background: "white",
+                  color: "#6B7280", fontWeight: 700, fontSize: "0.85rem",
+                  cursor: "pointer", fontFamily: "inherit",
+                }}
+              >
+                Browse first
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Location modal nested above */}
+      <LocationModal
+        isOpen={showLocationModal}
+        onClose={() => setShowLocationModal(false)}
+        onSave={handleLocationSaved}
+      />
+    </>
+  );
+}
