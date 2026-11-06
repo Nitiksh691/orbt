@@ -3,6 +3,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useSSEWithFallback } from "@/lib/useSSEWithFallback";
 import { Order } from "@/lib/types";
 import { TrendingUp, Package, Users, DollarSign, Activity, Tag, Plus, Trash2, Upload, ChevronUp, ChevronDown, ToggleLeft, ToggleRight } from "lucide-react";
+import { compressImage } from "@/lib/imageUtils";
 
 type BannerSlide = {
   id: string;
@@ -116,32 +117,30 @@ export default function AdminDashboard() {
     const uploadId = isBento ? `bento_${bentoPos}_${idx}` : `single_${idx}`;
     setUploadingIdx(uploadId);
     try {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onloadend = async () => {
-        const res = await fetch("/api/upload", {
-          method: "POST",
-          headers: { 
-            "Content-Type": "application/json",
-            "x-admin-token": sessionStorage.getItem("otw_admin_token") || ""
-          },
-          body: JSON.stringify({ image: reader.result }),
-        });
-        const uploadData = await res.json();
-        if (res.ok && uploadData.url) {
-          if (isBento && bentoPos !== undefined) {
-            setBentoSlides(prev => prev.map(g => g.position === bentoPos ? { ...g, slides: g.slides.map((s, i) => i === idx ? { ...s, image: uploadData.url } : s) } : g));
-          } else {
-            setSlides(prev => prev.map((s, i) => i === idx ? { ...s, image: uploadData.url } : s));
-          }
-          import("react-hot-toast").then(({ default: toast }) => toast.success("Image uploaded!"));
+      const base64 = await compressImage(file, { maxWidth: 1600, maxHeight: 1600, quality: 0.85 });
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-admin-token": sessionStorage.getItem("otw_admin_token") || ""
+        },
+        body: JSON.stringify({ image: base64 }),
+      });
+      const uploadData = await res.json().catch(() => ({}));
+      if (res.ok && uploadData.url) {
+        if (isBento && bentoPos !== undefined) {
+          setBentoSlides(prev => prev.map(g => g.position === bentoPos ? { ...g, slides: g.slides.map((s, i) => i === idx ? { ...s, image: uploadData.url } : s) } : g));
         } else {
-          import("react-hot-toast").then(({ default: toast }) => toast.error(uploadData.error || "Upload failed"));
+          setSlides(prev => prev.map((s, i) => i === idx ? { ...s, image: uploadData.url } : s));
         }
-        setUploadingIdx(null);
-      };
-    } catch {
-      import("react-hot-toast").then(({ default: toast }) => toast.error("Error reading image"));
+        import("react-hot-toast").then(({ default: toast }) => toast.success("Image uploaded! Click Save to make it live."));
+      } else {
+        import("react-hot-toast").then(({ default: toast }) => toast.error(uploadData.error || uploadData.detail || "Upload failed — try a smaller JPG/PNG (max 10 MB)."));
+      }
+    } catch (err) {
+      console.error("[admin banner] upload error", err);
+      import("react-hot-toast").then(({ default: toast }) => toast.error("Error uploading image"));
+    } finally {
       setUploadingIdx(null);
     }
   };

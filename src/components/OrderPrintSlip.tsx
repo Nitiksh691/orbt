@@ -51,7 +51,7 @@ export function printOrder(order: Order) {
 <html>
 <head>
   <meta charset="utf-8"/>
-  <title>KLOYH — Order #${shortId}</title>
+  <title>ORBT — Order #${shortId}</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     @page { size: A4 portrait; margin: 0; }
@@ -107,7 +107,7 @@ export function printOrder(order: Order) {
 </head>
 <body>
   <div class="slip">
-    <div class="brand"><h1>KLOYH</h1><p>FASHION</p></div>
+    <div class="brand"><h1>ORBT</h1><p>FASHION</p></div>
     <hr class="divider"/>
     <div class="meta">
       <strong>#${shortId}</strong><br/>
@@ -131,7 +131,7 @@ export function printOrder(order: Order) {
       </tbody>
     </table>
     <div class="payment-badge">${order.paymentMethod === "COD" ? "💵 CASH ON DELIVERY" : "✅ PAID ONLINE · " + (order.paymentStatus || "")}</div>
-    <div class="footer-note">Thank you for shopping KLOYH!<br/>Support: +91-8130939274</div>
+    <div class="footer-note">Thank you for shopping ORBT!<br/>Support: +91-8130939274</div>
   </div>
   <div class="stub">
     <div class="stub-id">#${shortId}</div>
@@ -209,7 +209,7 @@ export function printBatchOrders({ orders, gridPreset = "2x3", startSlotIndex = 
     return `
       <div class="bill-card">
         <div class="card-header">
-          <span class="card-title">KLOYH</span>
+          <span class="card-title">ORBT</span>
           <span class="card-id">#${shortId}</span>
         </div>
         <div class="card-meta">
@@ -243,7 +243,7 @@ export function printBatchOrders({ orders, gridPreset = "2x3", startSlotIndex = 
 <html>
 <head>
   <meta charset="utf-8"/>
-  <title>KLOYH — Batch Bills (${gridPreset})</title>
+  <title>ORBT — Batch Bills (${gridPreset})</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     @page {

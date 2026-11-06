@@ -67,9 +67,8 @@ export function useSSEWithFallback(
   const connect = useCallback(() => {
     if (!mountedRef.current) return;
 
-    const streamUrl = process.env.NEXT_PUBLIC_NODE_SERVER_URL
-      ? `${process.env.NEXT_PUBLIC_NODE_SERVER_URL}/api/orders/stream`
-      : "/api/orders/stream";
+    const nodeUrl = (process.env.NEXT_PUBLIC_NODE_SERVER_URL || "").replace(/\/+$/, "");
+    const streamUrl = nodeUrl ? `${nodeUrl}/api/orders/stream` : "/api/orders/stream";
     const es = new EventSource(streamUrl);
     esRef.current = es;
 

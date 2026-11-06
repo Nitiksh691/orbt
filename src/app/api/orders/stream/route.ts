@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   // If dedicated Node.js server URL is provided, redirect to it directly (SSE supports 307 redirects)
-  const nodeServerUrl = process.env.NODE_SERVER_URL || process.env.NEXT_PUBLIC_NODE_SERVER_URL;
+  const nodeServerUrl = (process.env.NODE_SERVER_URL || process.env.NEXT_PUBLIC_NODE_SERVER_URL || "").replace(/\/+$/, "");
   if (nodeServerUrl) {
     try {
       const target = new URL("/api/orders/stream", nodeServerUrl);

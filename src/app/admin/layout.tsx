@@ -7,24 +7,21 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { useApp } from "@/lib/context";
 import {
   LayoutDashboard,
-  Coffee,
+  Shirt,
   ShoppingBag,
   Tag,
   LogOut,
   Menu as MenuIcon,
   X,
-  Truck,
   Users,
   DollarSign,
   Lock,
   AlertCircle,
   Bell,
-  Store,
   ClipboardList,
   Volume2,
   VolumeX,
   BellRing,
-  Bike,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { STORAGE_KEYS } from "@/lib/constants";
@@ -39,14 +36,9 @@ import {
 const ADMIN_LINKS = [
   { href: "/admin", label: "Dashboard", icon: <LayoutDashboard size={18} /> },
   { href: "/admin/analytics", label: "Analytics", icon: <LayoutDashboard size={18} /> },
-  { href: "/admin/stores", label: "Store Hubs", icon: <Store size={18} /> },
-  { href: "/admin/menu", label: "Menu Management", icon: <Coffee size={18} /> },
-  { href: "/admin/vendors", label: "Vendors & Consignment", icon: <Store size={18} /> },
-  { href: "/admin/orders", label: "Live Orders", icon: <ShoppingBag size={18} /> },
-  { href: "/admin/riders", label: "Delivery Riders", icon: <Bike size={18} /> },
-  { href: "/admin/customers", label: "App Customers", icon: <Users size={18} /> },
-  { href: "/admin/interns", label: "Interns", icon: <ClipboardList size={18} /> },
-  { href: "/admin/expenses", label: "Expenses", icon: <DollarSign size={18} /> },
+  { href: "/admin/menu", label: "Products", icon: <Shirt size={18} /> },
+  { href: "/admin/orders", label: "Orders", icon: <ShoppingBag size={18} /> },
+  { href: "/admin/customers", label: "Customers", icon: <Users size={18} /> },
   { href: "/admin/coupons", label: "Coupons", icon: <Tag size={18} /> },
   { href: "/admin/settings", label: "Settings", icon: <LayoutDashboard size={18} /> },
 ];
@@ -182,7 +174,7 @@ function AdminPasscodeModal({ onSuccess }: { onSuccess: () => void }) {
               Admin Access
             </Dialog.Title>
             <Dialog.Description style={{ color: "#e4e4e7", fontSize: "0.9rem", lineHeight: 1.5 }}>
-              Enter the admin passcode to access the ONN D A WAY control panel.
+              Enter the admin passcode to access the ORBT control panel.
             </Dialog.Description>
           </div>
 
@@ -385,7 +377,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     setNotifGranted(ok);
     if (ok) {
       toast.success("Admin push notifications enabled! 🔔");
-      triggerBrowserNotification("ONN DA WAY Admin Alerts Active! 🍕", {
+      triggerBrowserNotification("ORBT Admin Alerts Active!", {
         body: "You will receive alerts when new orders arrive.",
       });
     } else {
@@ -402,7 +394,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         `🚨 ${unconfirmed} NEW ORDER${unconfirmed > 1 ? "S" : ""} WAITING FOR CONFIRMATION!`,
         { id: "admin-order-alert", duration: 8000, icon: "🔔" }
       );
-      triggerBrowserNotification("ONN DA WAY - New Order! 🍕", {
+      triggerBrowserNotification("ORBT - New Order!", {
         body: `${unconfirmed} new order${unconfirmed > 1 ? "s" : ""} waiting for confirmation! Click to view.`,
         tag: "admin-order-alert",
       });
@@ -535,7 +527,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         }}
       >
         <div style={{ fontWeight: 900, fontSize: "1.2rem", color: "#0055ff", letterSpacing: "1px" }}>
-          ONN ADMIN
+          ORBT ADMIN
         </div>
         <button onClick={() => setSidebarOpen(true)} style={{ background: "none", border: "none", color: "#0f172a", cursor: "pointer" }}>
           <MenuIcon size={24} />
@@ -586,13 +578,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         >
           <div style={{ display: sidebarCollapsed ? "none" : "block" }}>
             <div style={{ fontWeight: 900, fontSize: "1.4rem", color: "#0055ff", letterSpacing: "1px" }}>
-              ONN D A WAY
+              ORBT
             </div>
             <div style={{ fontSize: "0.75rem", color: "#64748b", letterSpacing: "0.15em", fontWeight: 700, marginTop: "4px" }}>
               ADMIN PORTAL
             </div>
           </div>
-          {sidebarCollapsed && <div style={{ color: "#0055ff", display: "flex", justifyContent: "center" }}><Store size={24} /></div>}
+          {sidebarCollapsed && <div style={{ color: "#0055ff", display: "flex", justifyContent: "center" }}><Shirt size={24} /></div>}
           <button className="show-mobile" onClick={() => setSidebarOpen(false)} style={{ background: "none", border: "none", display: "none", cursor: "pointer" }}>
             <X size={20} color="#0f172a" />
           </button>

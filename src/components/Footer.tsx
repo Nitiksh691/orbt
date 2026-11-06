@@ -1,149 +1,255 @@
 "use client";
 import Link from "next/link";
-import { Camera, MessageCircle, Mail, MapPin, Phone } from "lucide-react";
+import { Camera, MessageCircle, Mail, Phone } from "lucide-react";
 import { SUPPORT_PHONE_DISPLAY, SUPPORT_TEL, SUPPORT_EMAIL } from "@/lib/company";
-import { OTWGradientGlow } from "@/components/OTWGradientGlow";
+
+const EXPLORE = [
+  { label: "Shop All", href: "/menu" },
+  { label: "New In", href: "/menu?category=new" },
+  { label: "Our Story", href: "/about" },
+  { label: "Track Order", href: "/orders" },
+];
+
+const SHOP = [
+  { label: "Tees", href: "/menu?category=tees" },
+  { label: "Hoodies", href: "/menu?category=hoodies" },
+  { label: "Bottoms", href: "/menu?category=bottoms" },
+  { label: "Accessories", href: "/menu?category=accessories" },
+];
+
+const SUPPORT = [
+  { label: "Contact Us", href: "/contact-us" },
+  { label: "Shipping", href: "/delivery-policy" },
+  { label: "Returns", href: "/cancellation-and-refund" },
+  { label: "Privacy", href: "/privacy-policy" },
+];
 
 export default function Footer() {
   return (
-    <footer style={{ background: "var(--primary)", color: "white", paddingBottom: "55vh", position: "relative" }}>
+    <footer className="ft-root">
       <style>{`
-        .footer-main {
+        .ft-root {
+          position: relative;
+          background: #050505;
+          color: #F4F4F2;
+          border-top: 1px solid rgba(255, 255, 255, 0.1);
+          padding-bottom: 88px;
+          overflow: hidden;
+        }
+        .ft-main {
           display: grid;
-          grid-template-columns: 1.2fr 1fr 1fr 1fr;
-          gap: 32px;
-          padding: 48px 0 32px;
+          grid-template-columns: 1.6fr 1fr 1fr 1fr;
+          gap: clamp(28px, 5vw, 64px);
+          padding: clamp(44px, 7vw, 80px) 0 clamp(32px, 4vw, 48px);
         }
-        .footer-brand-col {}
-        .footer-section-title {
-          font-size: 0.7rem;
-          font-weight: 800;
-          letter-spacing: 1.5px;
+        .ft-brand-name {
+          line-height: 1;
+          margin-bottom: 14px;
+          color: #F4F4F2;
+        }
+
+        .ft-brand-name svg { width: 104px; height: auto; display: block; }
+        .ft-brand-tag {
+          font-size: 0.56rem;
+          letter-spacing: 0.22em;
           text-transform: uppercase;
-          opacity: 0.5;
-          margin-bottom: 16px;
+          color: #8A8A86;
+          font-weight: 600;
+          margin-bottom: 18px;
         }
-        .footer-link {
-          display: block;
-          color: rgba(255,255,255,0.8);
+        .ft-brand-copy {
+          font-size: 0.86rem;
+          line-height: 1.75;
+          color: #9A9A96;
+          max-width: 34ch;
+          margin: 0 0 22px;
+        }
+        .ft-socials { display: flex; gap: 8px; }
+        .ft-social {
+          width: 38px;
+          height: 38px;
+          border-radius: 50%;
+          border: 1px solid rgba(255, 255, 255, 0.16);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #F4F4F2;
           text-decoration: none;
-          font-size: 0.88rem;
+          transition: background 0.2s ease, color 0.2s ease;
+        }
+        .ft-social:hover { background: #F4F4F2; color: #050505; }
+
+        .ft-col-title {
+          font-size: 0.56rem;
+          font-weight: 800;
+          letter-spacing: 0.22em;
+          text-transform: uppercase;
+          color: #6E6E6A;
+          margin-bottom: 18px;
+        }
+        .ft-link {
+          display: block;
+          width: fit-content;
+          color: #C9C9C5;
+          text-decoration: none;
+          font-size: 0.84rem;
           font-weight: 500;
-          padding: 5px 0;
-          transition: color 0.15s;
+          padding: 6px 0;
+          transition: color 0.18s ease, transform 0.18s ease;
         }
-        .footer-link:hover { color: white; }
-        .footer-contact-item {
+        .ft-link:hover { color: #fff; transform: translateX(2px); }
+
+        .ft-contact {
           display: flex;
           align-items: center;
-          gap: 10px;
-          font-size: 0.85rem;
-          color: rgba(255,255,255,0.8);
-          padding: 4px 0;
+          gap: 9px;
+          font-size: 0.84rem;
+          color: #C9C9C5;
+          padding: 6px 0;
         }
-        .footer-contact-item a { color: rgba(255,255,255,0.8); text-decoration: none; transition: color 0.15s; }
-        .footer-contact-item a:hover { color: white; }
-        .footer-bottom {
-          border-top: 1px solid rgba(255,255,255,0.12);
-          padding: 20px 0;
+        .ft-contact svg { opacity: 0.55; flex-shrink: 0; }
+        .ft-contact a { color: #C9C9C5; text-decoration: none; transition: color 0.18s ease; }
+        .ft-contact a:hover { color: #fff; }
+
+        .ft-wordmark {
+          font-family: "Outfit", sans-serif;
+          font-weight: 900;
+          font-size: clamp(4.5rem, 20vw, 17rem);
+          line-height: 0.72;
+          letter-spacing: -0.045em;
+          text-transform: uppercase;
+          text-align: center;
+          color: transparent;
+          -webkit-text-stroke: 1px rgba(255, 255, 255, 0.22);
+          user-select: none;
+          pointer-events: none;
+          margin-top: clamp(10px, 3vw, 30px);
+          margin-bottom: -0.06em;
+          white-space: nowrap;
+        }
+
+        .ft-bottom {
           display: flex;
+          align-items: center;
           justify-content: space-between;
-          align-items: center;
+          gap: 14px;
           flex-wrap: wrap;
-          gap: 12px;
+          padding: 22px 0;
+          border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
-        .footer-social-btn {
-          width: 32px; height: 32px;
-          border-radius: 8px;
-          background: rgba(255,255,255,0.12);
-          display: flex; align-items: center; justify-content: center;
-          color: white; text-decoration: none;
-          transition: background 0.2s;
+        .ft-bottom-text {
+          font-size: 0.68rem;
+          letter-spacing: 0.04em;
+          color: #6E6E6A;
         }
-        .footer-social-btn:hover { background: rgba(255,255,255,0.25); }
-        @media (max-width: 860px) {
-          .footer-main { grid-template-columns: 1fr 1fr; gap: 28px; padding: 36px 0 24px; }
+        .ft-bottom-links { display: flex; gap: 18px; flex-wrap: wrap; }
+        .ft-bottom-links a {
+          font-size: 0.68rem;
+          color: #6E6E6A;
+          text-decoration: none;
+          transition: color 0.18s ease;
         }
-        @media (max-width: 520px) {
-          .footer-main { grid-template-columns: 1fr 1fr; gap: 24px; padding: 28px 0 20px; }
+        .ft-bottom-links a:hover { color: #fff; }
+
+        @media (max-width: 900px) {
+          .ft-main { grid-template-columns: 1.1fr 1fr 1fr; gap: 28px 18px; }
+          .ft-brand-col { grid-column: 1 / -1; }
+          .ft-support-col { grid-column: 3; grid-row: 2; }
+        }
+        @media (max-width: 560px) {
+          .ft-root { padding-bottom: 84px; }
+          .ft-main { padding-top: 40px; gap: 24px 14px; grid-template-columns: 1.1fr 1fr 1fr; }
+          .ft-brand-copy { max-width: 100%; }
+          .ft-support-col { grid-column: 3; grid-row: 2; }
+          .ft-link { font-size: 0.78rem; padding: 5px 0; }
+          .ft-col-title { margin-bottom: 12px; }
+          .ft-wordmark { -webkit-text-stroke-width: 0.8px; }
+          .ft-bottom { flex-direction: column; align-items: flex-start; }
         }
       `}</style>
 
-      <div className="otw-container">
-        <div className="footer-main">
-          {/* Left: Brand */}
-          <div className="footer-brand-col">
-            <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
-              <div style={{
-                width: 40, height: 40, borderRadius: "10px",
-                background: "rgba(255,255,255,0.15)",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                overflow: "hidden",
-              }}>
-                <img src="/icon-512x512.png" alt="KLOYH" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-              </div>
-              <div>
-                <div style={{ fontWeight: 900, fontSize: "1.15rem", letterSpacing: "0.5px", lineHeight: 1.1 }}>KLOYH</div>
-                <div style={{ fontSize: "0.62rem", opacity: 0.6, letterSpacing: "1.5px", marginTop: "2px" }}>FASHION</div>
-              </div>
+      <div className="kl-container">
+        <div className="ft-main">
+          <div className="ft-brand-col">
+            <div className="ft-brand-name orbt-footer-logo">
+              <svg viewBox="0 0 100 32" aria-label="ORBT">
+                <circle cx="17" cy="16" r="10" fill="currentColor" />
+                <ellipse cx="17" cy="16" rx="16" ry="5" fill="none" stroke="currentColor" strokeWidth="1.2" transform="rotate(-22 17 16)" />
+                <circle cx="28" cy="8" r="2.3" fill="currentColor" />
+                <text x="33" y="24" fontFamily="Outfit, sans-serif" fontSize="22" fontWeight="900" fill="currentColor" letterSpacing="1">RBT</text>
+              </svg>
             </div>
-            <p style={{ fontSize: "0.85rem", color: "white", opacity: 0.75, lineHeight: 1.7, maxWidth: "280px" }}>
-              Contemporary clothing and accessories — designed to be worn, shipped across India.
+            <div className="ft-brand-tag">Street &amp; modern wear</div>
+            <p className="ft-brand-copy">
+              Contemporary streetwear and fashion. Considered garments, made in
+              limited runs, shipped across India.
             </p>
-            <div style={{ display: "flex", gap: "8px", marginTop: "20px" }}>
-              <a href="#" className="footer-social-btn"><Camera size={15} /></a>
-              <a href={`https://wa.me/${SUPPORT_PHONE_DISPLAY?.replace(/\D/g, "")}`} className="footer-social-btn"><MessageCircle size={15} /></a>
+            <div className="ft-socials">
+              <a href="#" className="ft-social" aria-label="Instagram">
+                <Camera size={16} />
+              </a>
+              <a
+                href={`https://wa.me/${SUPPORT_PHONE_DISPLAY?.replace(/\D/g, "")}`}
+                className="ft-social"
+                aria-label="WhatsApp"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <MessageCircle size={16} />
+              </a>
+              <a href={`mailto:${SUPPORT_EMAIL}`} className="ft-social" aria-label="Email">
+                <Mail size={16} />
+              </a>
             </div>
           </div>
 
-          {/* Quick Links */}
           <div>
-            <div className="footer-section-title">Explore</div>
-            {[
-              { label: "Shop", href: "/menu" },
-              { label: "My Orders", href: "/orders" },
-              { label: "Contact Us", href: "/contact-us" },
-              { label: "Partner with us", href: "/delivery/login" },
-            ].map(l => (
-              <Link key={l.label} href={l.href} className="footer-link">{l.label}</Link>
+            <div className="ft-col-title">Explore</div>
+            {EXPLORE.map((l) => (
+              <Link key={l.label} href={l.href} className="ft-link">
+                {l.label}
+              </Link>
             ))}
           </div>
 
-          {/* Legal */}
           <div>
-            <div className="footer-section-title">Legal</div>
-            {[
-              { label: "Privacy Policy", href: "/privacy-policy" },
-              { label: "Terms & Conditions", href: "/terms-and-conditions" },
-              { label: "Shipping Policy", href: "/delivery-policy" },
-              { label: "Cancellation & Refund", href: "/cancellation-and-refund" },
-              { label: "Contact Us", href: "/contact-us" },
-            ].map(l => (
-              <Link key={l.label} href={l.href} className="footer-link">{l.label}</Link>
+            <div className="ft-col-title">Shop</div>
+            {SHOP.map((l) => (
+              <Link key={l.label} href={l.href} className="ft-link">
+                {l.label}
+              </Link>
             ))}
           </div>
 
-          {/* Contact */}
-          <div>
-            <div className="footer-section-title">Contact</div>
-            <div className="footer-contact-item">
-              <MapPin size={14} style={{ flexShrink: 0, opacity: 0.7 }} />
-              <span>Ships across India</span>
-            </div>
-            <div className="footer-contact-item">
-              <Phone size={14} style={{ flexShrink: 0, opacity: 0.7 }} />
+          <div className="ft-support-col">
+            <div className="ft-col-title">Support</div>
+            {SUPPORT.map((l) => (
+              <Link key={l.label} href={l.href} className="ft-link">
+                {l.label}
+              </Link>
+            ))}
+            <div className="ft-contact" style={{ marginTop: 8 }}>
+              <Phone size={14} />
               <a href={SUPPORT_TEL}>{SUPPORT_PHONE_DISPLAY}</a>
-            </div>
-            <div className="footer-contact-item">
-              <Mail size={14} style={{ flexShrink: 0, opacity: 0.7 }} />
-              <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Rainbow glow that rises from the bottom of the page as you scroll */}
-      <OTWGradientGlow />
+        <div className="ft-wordmark" aria-hidden="true">
+          ORBT
+        </div>
+
+        <div className="ft-bottom">
+          <span className="ft-bottom-text">
+            © {new Date().getFullYear()} ORBT. All rights reserved.
+          </span>
+          <div className="ft-bottom-links">
+            <Link href="/terms-and-conditions">Terms</Link>
+            <Link href="/privacy-policy">Privacy</Link>
+            <Link href="/delivery-policy">Shipping</Link>
+          </div>
+        </div>
+      </div>
     </footer>
   );
 }

@@ -106,41 +106,44 @@ export default function OrdersPage() {
     }
   };
 
-  if (loading || fetching) return <div style={{ display: "flex", justifyContent: "center", padding: "100px 0" }}><RefreshCw className="animate-spin" size={32} color="var(--primary)" /></div>;
+  if (loading || fetching) return <div style={{ minHeight: "70vh", background: "#080808", display: "flex", alignItems: "center", justifyContent: "center" }}><RefreshCw className="animate-spin" size={32} color="#F4F4F2" /></div>;
 
   if (!user) {
     return (
-      <div style={{ background: "#F5F7FF", minHeight: "calc(100vh - 68px)", padding: "40px 0", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div className="otw-card" style={{ padding: "40px", textAlign: "center", maxWidth: "400px" }}>
-          <h2 style={{ fontSize: "1.4rem", fontWeight: 800, marginBottom: "16px" }}>Login to view orders</h2>
-          <p style={{ color: "var(--text-muted)", marginBottom: "24px" }}>Please log in to track your current orders and view order history.</p>
-          <button id="nav-auth-btn" className="otw-btn otw-btn-primary" style={{ width: "100%" }} onClick={() => document.getElementById("nav-auth-btn")?.click()}>Log In</button>
+      <div style={{ minHeight: "calc(100vh - 68px)", padding: "56px 20px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div className="otw-card" style={{ padding: "40px", textAlign: "center", maxWidth: "400px", background: "#0F0F0F", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "4px" }}>
+          <h2 style={{ fontSize: "1.4rem", fontWeight: 800, marginBottom: "16px", color: "#F4F4F2" }}>Login to view orders</h2>
+          <p style={{ color: "#A8A8A4", marginBottom: "24px" }}>Please log in to track your current orders and view order history.</p>
+          <Link href="/profile" style={{ display: "inline-flex", width: "100%", justifyContent: "center", background: "#F4F4F2", color: "#0A0A0A", padding: "14px 24px", borderRadius: "99px", fontWeight: 900, textDecoration: "none" }}>Log In</Link>
         </div>
       </div>
     );
   }
 
   return (
-    <div style={{ background: "#F5F7FF", minHeight: "calc(100vh - 68px)", padding: "40px 0" }}>
+    <div style={{ minHeight: "calc(100vh - 68px)", padding: "40px 0 100px" }}>
       <div className="otw-container" style={{ maxWidth: "800px" }}>
         
         <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "32px" }}>
-          <div style={{ width: 48, height: 48, borderRadius: "12px", background: "var(--accent)", color: "var(--primary)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ width: 48, height: 48, borderRadius: "50%", background: "#171717", border: "1px solid rgba(255,255,255,0.12)", color: "#F4F4F2", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <Package size={24}/>
           </div>
           <div>
-            <h1 style={{ fontSize: "1.8rem", fontWeight: 900, lineHeight: 1.2 }}>My Orders</h1>
-            <p style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>Track and view your past cravings</p>
+            <h1 style={{ fontSize: "1.8rem", fontWeight: 900, lineHeight: 1.2, color: "#F4F4F2", textTransform: "uppercase" }}>My Orders</h1>
+            <p style={{ color: "#A8A8A4", fontSize: "0.9rem" }}>Track your drops and review past orders</p>
           </div>
+          <Link href="/track" style={{ marginLeft: "auto", color: "#F4F4F2", fontSize: "0.72rem", fontWeight: 800, letterSpacing: "0.14em", textTransform: "uppercase", textDecoration: "none", border: "1px solid rgba(255,255,255,0.18)", borderRadius: "99px", padding: "10px 14px" }}>
+            Track by ID
+          </Link>
         </div>
 
         {orders.length === 0 ? (
           <div>
-            <div className="otw-card" style={{ padding: "40px 24px", textAlign: "center", marginBottom: "32px" }}>
-              <div style={{ fontSize: "3.5rem", marginBottom: "12px" }}>🧾</div>
-              <h2 style={{ fontSize: "1.3rem", fontWeight: 800, marginBottom: "8px" }}>No orders yet</h2>
-              <p style={{ color: "var(--text-muted)", marginBottom: "20px" }}>You haven't ordered anything yet. Let's fix that!</p>
-              <Link href="/menu" className="otw-btn otw-btn-primary">Browse Full Menu</Link>
+            <div className="otw-card" style={{ padding: "40px 24px", textAlign: "center", marginBottom: "32px", background: "#0F0F0F", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "4px" }}>
+              <div style={{ fontSize: "3.5rem", marginBottom: "12px" }}>✦</div>
+              <h2 style={{ fontSize: "1.3rem", fontWeight: 800, marginBottom: "8px", color: "#F4F4F2" }}>No orders yet</h2>
+              <p style={{ color: "#A8A8A4", marginBottom: "20px" }}>Your next drop is waiting.</p>
+              <Link href="/menu" className="otw-btn otw-btn-primary" style={{ borderRadius: "99px" }}>Browse Drops</Link>
             </div>
 
             {categories.length > 0 && (
@@ -208,14 +211,14 @@ export default function OrdersPage() {
             {/* CURRENT ORDERS */}
             {orders.filter(o => isActiveOrderStatus(o.status)).length > 0 && (
               <div>
-                <h2 style={{ fontSize: "1.3rem", fontWeight: 800, marginBottom: "16px", color: "var(--primary)" }}>Current Orders</h2>
+                <h2 style={{ fontSize: "1.3rem", fontWeight: 800, marginBottom: "16px", color: "#F4F4F2", textTransform: "uppercase" }}>Live Drops</h2>
                 <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
                   {orders.filter(o => isActiveOrderStatus(o.status)).map(order => (
-                    <div key={order.id} className="otw-card" style={{ padding: "24px", border: "2px solid var(--primary)", boxShadow: "0 8px 24px rgba(1,53,251,0.15)" }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "16px", borderBottom: "1px solid var(--border)", paddingBottom: "16px" }}>
+                    <div key={order.id} className="otw-card" style={{ padding: "24px", background: "#0F0F0F", border: "1px solid rgba(255,255,255,0.18)", borderRadius: "4px" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "16px", borderBottom: "1px solid rgba(255,255,255,0.1)", paddingBottom: "16px" }}>
                         <div>
                           <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "6px" }}>
-                            <span style={{ fontWeight: 800, fontSize: "1.1rem" }}>Order #{order.id.slice(-6).toUpperCase()}</span>
+                            <span style={{ fontWeight: 800, fontSize: "1.1rem", color: "#F4F4F2" }}>Order #{order.id.slice(-6).toUpperCase()}</span>
                             {getStatusBadge(order.status)}
                           </div>
                           <div style={{ display: "flex", alignItems: "center", gap: "16px", fontSize: "0.85rem", color: "var(--text-muted)" }}>
@@ -254,14 +257,14 @@ export default function OrdersPage() {
             {/* PREVIOUS ORDERS */}
             {orders.filter(o => !isActiveOrderStatus(o.status)).length > 0 && (
               <div>
-                <h2 style={{ fontSize: "1.3rem", fontWeight: 800, marginBottom: "16px", color: "var(--text-dark)" }}>Previous Orders</h2>
+                <h2 style={{ fontSize: "1.3rem", fontWeight: 800, marginBottom: "16px", color: "#F4F4F2", textTransform: "uppercase" }}>Archived Orders</h2>
                 <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
                   {orders.filter(o => !isActiveOrderStatus(o.status)).map(order => (
-                    <div key={order.id} className="otw-card" style={{ padding: "24px", opacity: 0.9 }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "16px", borderBottom: "1px solid var(--border)", paddingBottom: "16px" }}>
+                    <div key={order.id} className="otw-card" style={{ padding: "24px", opacity: 0.95, background: "#0F0F0F", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "4px" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "16px", borderBottom: "1px solid rgba(255,255,255,0.1)", paddingBottom: "16px" }}>
                         <div>
                           <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "6px" }}>
-                            <span style={{ fontWeight: 800, fontSize: "1.1rem" }}>Order #{order.id.slice(-6).toUpperCase()}</span>
+                            <span style={{ fontWeight: 800, fontSize: "1.1rem", color: "#F4F4F2" }}>Order #{order.id.slice(-6).toUpperCase()}</span>
                             {getStatusBadge(order.status)}
                           </div>
                           <div style={{ display: "flex", alignItems: "center", gap: "16px", fontSize: "0.85rem", color: "var(--text-muted)" }}>

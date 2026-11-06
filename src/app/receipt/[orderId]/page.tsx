@@ -41,19 +41,19 @@ export default function ReceiptPage() {
 
   if (loading) {
     return (
-      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#F5F7FF" }}>
-        <WalkingLoader size={60} color="#0135FB" />
+      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <WalkingLoader size={60} color="#F4F4F2" />
       </div>
     );
   }
 
   if (error || !order) {
     return (
-      <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, background: "#F5F7FF" }}>
-        <div style={{ fontSize: "3rem" }}>🧾</div>
-        <h2 style={{ fontWeight: 800, color: "#0A0F2E" }}>Receipt not found</h2>
-        <p style={{ color: "#6B7280" }}>{error || "This receipt doesn't exist or you don't have access."}</p>
-        <Link href="/orders" style={{ background: "#0135FB", color: "#fff", padding: "12px 28px", borderRadius: 10, fontWeight: 700, textDecoration: "none" }}>Back to Orders</Link>
+      <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16 }}>
+        <div style={{ fontSize: "3rem" }}>✦</div>
+        <h2 style={{ fontWeight: 800, color: "#F4F4F2" }}>Receipt not found</h2>
+        <p style={{ color: "#A8A8A4" }}>{error || "This receipt doesn't exist or you don't have access."}</p>
+        <Link href="/orders" style={{ background: "#F4F4F2", color: "#0A0A0A", padding: "12px 28px", borderRadius: 99, fontWeight: 700, textDecoration: "none" }}>Back to Orders</Link>
       </div>
     );
   }
@@ -77,7 +77,7 @@ export default function ReceiptPage() {
       `}</style>
 
       {/* Top action bar - hidden on print */}
-      <div className="no-print" style={{ background: "#0135FB", padding: "12px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+      <div className="no-print" style={{ background: "#000000", borderBottom: "1px solid rgba(255,255,255,0.12)", padding: "12px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
         <Link href={`/track/${order.id}`} style={{ display: "flex", alignItems: "center", gap: 8, color: "rgba(255,255,255,0.85)", textDecoration: "none", fontWeight: 700, fontSize: "0.88rem" }}>
           <ArrowLeft size={16} /> Back to Order
         </Link>
@@ -85,30 +85,30 @@ export default function ReceiptPage() {
           <button onClick={handlePrint} style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(255,255,255,0.15)", color: "#fff", border: "1px solid rgba(255,255,255,0.25)", padding: "8px 16px", borderRadius: 8, fontWeight: 700, fontSize: "0.85rem", cursor: "pointer" }}>
             <Printer size={15} /> Print
           </button>
-          <button onClick={handleDownload} style={{ display: "flex", alignItems: "center", gap: 6, background: "#fff", color: "#0135FB", border: "none", padding: "8px 16px", borderRadius: 8, fontWeight: 800, fontSize: "0.85rem", cursor: "pointer" }}>
+          <button onClick={handleDownload} style={{ display: "flex", alignItems: "center", gap: 6, background: "#F4F4F2", color: "#0A0A0A", border: "none", padding: "8px 16px", borderRadius: 99, fontWeight: 800, fontSize: "0.85rem", cursor: "pointer" }}>
             <Download size={15} /> Download PDF
           </button>
         </div>
       </div>
 
       {/* Receipt */}
-      <div style={{ background: "#F5F7FF", minHeight: "100vh", padding: "32px 16px 60px" }}>
+      <div style={{ minHeight: "100vh", padding: "32px 16px 60px" }}>
         <div
           ref={printRef}
           className="receipt-root"
           style={{
             maxWidth: 520,
             margin: "0 auto",
-            background: "#fff",
-            borderRadius: 20,
-            boxShadow: "0 8px 40px rgba(1,53,251,0.12)",
+            background: "#0F0F0F",
+            border: "1px solid rgba(255,255,255,0.12)",
+            borderRadius: 4,
             overflow: "hidden",
             animation: "receipt-in 0.4s ease",
           }}
         >
           {/* Header */}
           <div style={{
-            background: "linear-gradient(135deg, #0135FB 0%, #0060D6 100%)",
+            background: "#000000",
             padding: "32px 28px 28px",
             textAlign: "center",
           }}>
@@ -256,8 +256,8 @@ export default function ReceiptPage() {
           <Link href={`/track/${order.id}`} style={{ flex: 1, minWidth: 140, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, background: "#fff", color: "#0135FB", border: "1.5px solid #0135FB", padding: "12px 20px", borderRadius: 12, fontWeight: 700, textDecoration: "none", fontSize: "0.9rem" }}>
             <ArrowLeft size={15} /> Track Order
           </Link>
-          <Link href="/" style={{ flex: 1, minWidth: 140, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, background: "#0135FB", color: "#fff", border: "none", padding: "12px 20px", borderRadius: 12, fontWeight: 700, textDecoration: "none", fontSize: "0.9rem", boxShadow: "0 4px 0 #0028D4" }}>
-            Order Again 🍔
+          <Link href="/menu" style={{ flex: 1, minWidth: 140, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, background: "#F4F4F2", color: "#0A0A0A", border: "none", padding: "12px 20px", borderRadius: 99, fontWeight: 700, textDecoration: "none", fontSize: "0.9rem" }}>
+            Shop Again
           </Link>
         </div>
       </div>

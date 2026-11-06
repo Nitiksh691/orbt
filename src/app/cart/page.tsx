@@ -25,7 +25,7 @@ function CartItemThumbnail({ item, quantity }: { item: any; quantity: number }) 
 
   const fallbackEmoji = isCoffee ? "✦" : isDrink ? "✦" : isSnack ? "👜" : isFood ? "🧥" : "✦";
   const fallbackBg = isCoffee
-    ? "linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%)"
+    ? "linear-gradient(135deg, #F5F5F5 0%, #E5E5E5 100%)"
     : isDrink
     ? "linear-gradient(135deg, #ECFEFF 0%, #CFFAFE 100%)"
     : isSnack
@@ -37,7 +37,7 @@ function CartItemThumbnail({ item, quantity }: { item: any; quantity: number }) 
       width: 74, height: 74, borderRadius: 14,
       background: fallbackBg,
       position: "relative", overflow: "hidden", flexShrink: 0,
-      border: "1.5px solid rgba(1, 53, 251, 0.08)",
+      border: "1.5px solid rgba(0, 0, 0, 0.08)",
       boxShadow: "0 2px 8px rgba(15,23,42,0.06)",
       display: "flex", alignItems: "center", justifyContent: "center"
     }}>
@@ -63,10 +63,10 @@ function CartItemThumbnail({ item, quantity }: { item: any; quantity: number }) 
       {quantity > 1 && (
         <div style={{
           position: "absolute", bottom: 4, right: 4,
-          background: "#0135FB", color: "#fff",
+          background: "#000000", color: "#fff",
           fontSize: "0.62rem", fontWeight: 900,
           padding: "1px 5px", borderRadius: 6,
-          zIndex: 2, boxShadow: "0 2px 4px rgba(1,53,251,0.4)"
+          zIndex: 2, boxShadow: "0 2px 4px rgba(0,0,0,0.4)"
         }}>
           {quantity}x
         </div>
@@ -200,13 +200,12 @@ export default function CartPage() {
   // Apparel orders get free shipping above the configured threshold
   const hasOnndawayFoodOrCoffee = false;
 
-  // Minimum order requirement (defaults to ₹69 if not configured or 0)
-  const targetMinOrder = (minOrderValue && minOrderValue > 0) ? minOrderValue : 69;
-  const isMinOrderMet = targetMinOrder <= 0 || cartTotal >= targetMinOrder;
-  const minOrderShortfall = targetMinOrder > 0 && cartTotal < targetMinOrder
-    ? targetMinOrder - cartTotal
-    : 0;
-  const minOrderPct = targetMinOrder > 0 ? Math.min(100, Math.round((cartTotal / targetMinOrder) * 100)) : 100;
+  // Minimum order feature disabled for ORBT clothing orders.
+  // Keeping the variables keeps the existing payment summary code safe.
+  const targetMinOrder = 0;
+  const isMinOrderMet = true;
+  const minOrderShortfall = 0;
+  const minOrderPct = 100;
 
   // Free delivery check:
   // Onndaway food & coffee ALWAYS get free delivery!
@@ -219,6 +218,13 @@ export default function CartPage() {
   const effectiveDeliveryFee = isFreeDeliveryEligible ? 0 : deliveryFee;
 
   const canPlace = cart.length > 0 && isAddressValid && isPhoneValid && name.trim().length > 0 && isTimeValid() && isMinOrderMet;
+
+  const addressSteps = [
+    { label: "Contact", done: name.trim().length > 0 && isPhoneValid },
+    { label: "Address", done: isAddressValid },
+    { label: "Delivery", done: isTimeValid() },
+  ];
+  const addressDone = addressSteps.filter((step) => step.done).length;
 
   const handleApplyCoupon = async () => {
     const code = couponCode.toUpperCase();
@@ -351,7 +357,7 @@ export default function CartPage() {
   /* ─── POST-ORDER SCREEN ─── */
   if (placedOrderId) {
     return (
-      <div style={{ background: "#F5F7FF", minHeight: "100vh", color: "#0A0F2E", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px 20px" }}>
+      <div style={{ background: "#FAFAFA", minHeight: "100vh", color: "#0A0A0A", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px 20px" }}>
         <style>{`
           @keyframes pulse-ring-green {
             0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34,197,94,0.4); }
@@ -361,14 +367,14 @@ export default function CartPage() {
           @keyframes slide-up-post { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
         `}</style>
 
-        <div style={{ textAlign: "center", animation: "slide-up-post 0.5s ease", background: "#fff", borderRadius: "24px", padding: "48px 36px", maxWidth: "440px", width: "100%", boxShadow: "0 8px 0 rgba(1,53,251,0.9), 0 20px 40px rgba(1,53,251,0.12)" }}>
+        <div style={{ textAlign: "center", animation: "slide-up-post 0.5s ease", background: "#fff", borderRadius: "24px", padding: "48px 36px", maxWidth: "440px", width: "100%", boxShadow: "0 8px 0 rgba(0,0,0,0.9), 0 20px 40px rgba(0,0,0,0.12)" }}>
           <div style={{ fontSize: "4rem", marginBottom: "12px" }}>🎉</div>
           <div style={{ width: 80, height: 80, borderRadius: "50%", background: "rgba(34,197,94,0.1)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 24px", animation: "pulse-ring-green 1.5s ease-in-out infinite" }}>
             <CheckCircle size={40} color="#22C55E" />
           </div>
           <h2 style={{ fontSize: "1.9rem", fontWeight: 900, marginBottom: "10px", textTransform: "uppercase", letterSpacing: "1px", color: "#22C55E" }}>Order Placed!</h2>
           <p style={{ color: "#6B7280", marginBottom: "32px", fontSize: "0.95rem", lineHeight: 1.7 }}>
-            Your order has been <strong style={{ color: "#0A0F2E" }}>placed successfully</strong>. We’ll pack it and ship it to your address — track it anytime.
+            Your order has been <strong style={{ color: "#0A0A0A" }}>placed successfully</strong>. We’ll pack it and ship it to your address — track it anytime.
           </p>
           <div style={{ padding: "16px 36px" }} /> {/* Spacer since button moved to bottom */}
         </div>
@@ -379,26 +385,26 @@ export default function CartPage() {
           background: "rgba(255, 255, 255, 0.9)", backdropFilter: "blur(20px)",
           padding: "12px 16px 12px 20px", borderRadius: "999px",
           display: "flex", alignItems: "center", gap: "20px",
-          boxShadow: "0 10px 40px rgba(1, 53, 251, 0.15), 0 0 0 1px rgba(1, 53, 251, 0.1)", zIndex: 999,
+          boxShadow: "0 10px 40px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.1)", zIndex: 999,
           width: "90%", maxWidth: "420px"
         }}>
           <div style={{ display: "flex", alignItems: "center", gap: "12px", flex: 1 }}>
-            <div style={{ width: 40, height: 40, borderRadius: "50%", background: "#EEF1FF", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.2rem" }}>
+            <div style={{ width: 40, height: 40, borderRadius: "50%", background: "#F5F5F5", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.2rem" }}>
               📦
             </div>
             <div>
-              <div style={{ color: "#0A0F2E", fontSize: "0.95rem", fontWeight: 800, lineHeight: 1.2 }}>Order Active</div>
+              <div style={{ color: "#0A0A0A", fontSize: "0.95rem", fontWeight: 800, lineHeight: 1.2 }}>Order Active</div>
               <div style={{ color: "#6B7280", fontSize: "0.75rem", fontWeight: 500 }}>Track your shipment</div>
             </div>
           </div>
           <Link
             href={`/track/${placedOrderId}`}
             style={{
-              background: "#0135FB", color: "#ffffff",
+              background: "#000000", color: "#ffffff",
               padding: "12px 24px", borderRadius: "999px",
               fontWeight: 800, textDecoration: "none", textTransform: "uppercase", letterSpacing: "0.5px",
               display: "flex", alignItems: "center", gap: "6px", fontSize: "0.85rem",
-              boxShadow: "0 4px 14px rgba(1,53,251,0.4)", flexShrink: 0, transition: "transform 0.2s"
+              boxShadow: "0 4px 14px rgba(0,0,0,0.4)", flexShrink: 0, transition: "transform 0.2s"
             }}
           >
             Track <ArrowRight size={16} />
@@ -411,11 +417,11 @@ export default function CartPage() {
   /* ─── EMPTY CART ─── */
   if (cart.length === 0) {
     return (
-      <div style={{ background: "#F5F7FF", minHeight: "100vh", color: "#0A0F2E", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px 20px" }}>
-        <div style={{ fontSize: "4rem", marginBottom: "16px", opacity: 0.3 }}>🛒</div>
+      <div style={{ minHeight: "100vh", color: "#F4F4F2", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px 20px" }}>
+        <div style={{ fontSize: "4rem", marginBottom: "16px", opacity: 0.3 }}>✦</div>
         <h2 style={{ fontSize: "1.9rem", fontWeight: 900, marginBottom: "10px", textTransform: "uppercase", letterSpacing: "1px" }}>Your cart is empty</h2>
-        <p style={{ color: "#6B7280", marginBottom: "32px", textAlign: "center" }}>Looks like you haven't added any items yet.</p>
-        <Link href="/" style={{ background: "#0135FB", color: "#fff", padding: "14px 32px", borderRadius: "10px", fontWeight: 900, textDecoration: "none", textTransform: "uppercase", letterSpacing: "1px", boxShadow: "0 4px 0 #0028D4" }}>
+        <p style={{ color: "#A8A8A4", marginBottom: "32px", textAlign: "center" }}>Looks like you haven&apos;t added any pieces yet.</p>
+        <Link href="/menu" style={{ background: "#F4F4F2", color: "#0A0A0A", padding: "14px 32px", borderRadius: "99px", fontWeight: 900, textDecoration: "none", textTransform: "uppercase", letterSpacing: "1px" }}>
           Shop the drop
         </Link>
       </div>
@@ -425,67 +431,96 @@ export default function CartPage() {
   /* ─── SHARED STYLES ─── */
   const inputStyle: React.CSSProperties = {
     width: "100%", padding: "13px 14px",
-    background: "#fff", border: "1.5px solid #e5e7eb",
-    borderRadius: "8px", color: "#0A0F2E", outline: "none",
+    background: "#0F0F0F", border: "1px solid rgba(255, 255, 255, 0.16)",
+    borderRadius: "4px", color: "#F4F4F2", outline: "none",
     fontSize: "0.93rem", transition: "border-color 0.2s, box-shadow 0.2s",
     fontFamily: "inherit",
   };
   const labelStyle: React.CSSProperties = {
     display: "block", fontSize: "0.72rem", fontWeight: 700,
-    color: "#2A3060", marginBottom: "7px",
+    color: "#F4F4F2", marginBottom: "7px",
     textTransform: "uppercase", letterSpacing: "0.8px",
   };
   const cardStyle: React.CSSProperties = {
-    background: "#fff", borderRadius: "16px",
-    padding: "22px 20px", boxShadow: "0 2px 16px rgba(1,53,251,0.06)",
+    background: "#141414", border: "1px solid rgba(255,255,255,0.14)",
+    borderRadius: "4px", padding: "22px 20px",
   };
   const isLoggedIn = !!user;
 
   return (
-    <div style={{ background: "#F5F7FF", minHeight: "100vh", color: "#0A0F2E", padding: "28px 0 100px", fontFamily: "inherit", position: "relative" }}>
+    <div style={{ minHeight: "100vh", color: "#F4F4F2", padding: "28px 0 100px", fontFamily: "inherit", position: "relative" }}>
       <style>{`
         @keyframes slide-up { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes spin-wait { to { transform: rotate(360deg); } }
-        .otw-cart-input:focus { border-color: #0135FB !important; box-shadow: 0 0 0 3px rgba(1,53,251,0.1) !important; }
-        .otw-qty-btn:hover { background: #EEF1FF !important; }
+        .otw-cart-input:focus { border-color: #000000 !important; box-shadow: 0 0 0 3px rgba(0,0,0,0.1) !important; }
+        .otw-qty-btn:hover { background: #F5F5F5 !important; }
         .otw-del-btn:hover { background: #FEE2E2 !important; border-color: #fca5a5 !important; }
-        .otw-apply-btn:hover { background: #0028D4 !important; }
-        .otw-back-btn:hover { background: #EEF1FF !important; }
+        .otw-apply-btn:hover { background: #111111 !important; }
+        .otw-back-btn:hover { background: #F5F5F5 !important; }
         .cart-grid { display: grid; gap: 24px; align-items: start; grid-template-columns: 1fr 370px; }
         @media (max-width: 900px) { .cart-grid { grid-template-columns: 1fr !important; } }
         .time-slot-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 8px; }
         .time-slot-btn {
           display: flex; flex-direction: column; align-items: center;
           justify-content: center; gap: 1px;
-          padding: 10px 8px; border-radius: 12px;
-          border: 1.5px solid #e5e7eb; background: #fff;
+          padding: 10px 8px; border-radius: 4px;
+          border: 1px solid rgba(255,255,255,0.16); background: #171717;
           cursor: pointer; transition: all 0.18s; text-align: center;
           font-family: inherit;
         }
-        .time-slot-btn:hover { border-color: #0135FB; background: #EEF1FF; }
-        .time-slot-btn.active { border-color: #0135FB; background: #0135FB; }
+        .time-slot-btn:hover { border-color: #000000; background: #F5F5F5; }
+        .time-slot-btn.active { border-color: #000000; background: #000000; }
         .time-slot-btn.active .ts-label { color: #fff; }
         .time-slot-btn.active .ts-sub { color: rgba(255,255,255,0.7); }
-        .ts-label { font-size: 0.8rem; font-weight: 800; color: #0A0F2E; line-height: 1.2; }
+        .ts-label { font-size: 0.8rem; font-weight: 800; color: #0A0A0A; line-height: 1.2; }
         .ts-sub { font-size: 0.65rem; color: #9ca3af; font-weight: 500; margin-top: 1px; }
         .loc-wrap { position: relative; }
         .loc-suggestions {
           position: absolute; top: calc(100% + 6px); left: 0; right: 0;
-          background: #fff; border: 1.5px solid #0135FB;
+          background: #fff; border: 1.5px solid #000000;
           border-radius: 10px; overflow: hidden;
-          box-shadow: 0 8px 24px rgba(1,53,251,0.12);
+          box-shadow: 0 8px 24px rgba(0,0,0,0.12);
           z-index: 200; max-height: 220px; overflow-y: auto;
           animation: slide-up 0.15s ease;
         }
         .loc-suggestion-item {
           padding: 10px 14px; font-size: 0.87rem; cursor: pointer;
-          color: #0A0F2E; font-weight: 500;
+          color: #0A0A0A; font-weight: 500;
           transition: background 0.12s;
           border-bottom: 1px solid #f3f4f6;
         }
         .loc-suggestion-item:last-child { border-bottom: none; }
-        .loc-suggestion-item:hover { background: #EEF1FF; color: #0135FB; font-weight: 700; }
-        .loc-suggestion-match { color: #0135FB; font-weight: 800; }
+        .loc-suggestion-item:hover { background: #F5F5F5; color: #000000; font-weight: 700; }
+        .loc-suggestion-match { color: #000000; font-weight: 800; }
+        .addr-card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+        .addr-title-wrap { display: flex; align-items: center; gap: 12px; min-width: 0; }
+        .addr-icon { width: 38px; height: 38px; border-radius: 50%; background: #171717; border: 1px solid rgba(255,255,255,0.12); display: grid; place-items: center; flex-shrink: 0; }
+        .addr-title { margin: 0; font-size: 0.82rem; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; color: #F4F4F2; }
+        .addr-sub { margin: 3px 0 0; font-size: 0.78rem; color: #A8A8A4; font-weight: 500; }
+        .addr-status { flex-shrink: 0; border: 1px solid rgba(255,255,255,0.16); border-radius: 999px; padding: 6px 11px; font-size: 0.66rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: #A8A8A4; background: #171717; }
+        .addr-status.ready { color: #F4F4F2; background: #242424; border-color: #F4F4F2; }
+        .addr-progress { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 22px; }
+        .addr-step { display: flex; align-items: center; gap: 8px; padding: 9px 10px; border-radius: 4px; background: #171717; border: 1px solid rgba(255,255,255,0.08); min-width: 0; }
+        .addr-step-dot { width: 18px; height: 18px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.22); display: grid; place-items: center; flex-shrink: 0; color: #A8A8A4; font-size: 0.55rem; font-weight: 900; background: #0F0F0F; }
+        .addr-step.done { background: #242424; border-color: rgba(255,255,255,0.18); }
+        .addr-step.done .addr-step-dot { background: #F4F4F2; border-color: #F4F4F2; color: #0A0A0A; }
+        .addr-step-label { font-size: 0.67rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: #A8A8A4; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .addr-step.done .addr-step-label { color: #F4F4F2; }
+        .addr-section { grid-column: 1 / -1; display: flex; align-items: center; gap: 10px; margin: 6px 0 -2px; }
+        .addr-section::after { content: ""; height: 1px; flex: 1; background: rgba(255,255,255,0.1); }
+        .addr-section span { font-size: 0.64rem; font-weight: 900; letter-spacing: 0.12em; text-transform: uppercase; color: #6E6E6A; white-space: nowrap; }
+        .addr-preview { margin-top: 20px; padding: 16px; border-radius: 4px; background: #171717; border: 1px solid rgba(255,255,255,0.1); color: #fff; display: flex; gap: 12px; align-items: flex-start; }
+        .addr-preview-icon { width: 34px; height: 34px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.22); display: grid; place-items: center; flex-shrink: 0; }
+        .addr-preview-label { margin: 0 0 5px; font-size: 0.58rem; font-weight: 800; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(255,255,255,0.55); }
+        .addr-preview-name { font-size: 0.86rem; font-weight: 800; color: #fff; }
+        .addr-preview-line { margin-top: 3px; font-size: 0.76rem; line-height: 1.5; color: rgba(255,255,255,0.72); }
+        .addr-preview-empty { font-size: 0.76rem; line-height: 1.55; color: rgba(255,255,255,0.6); }
+        .addr-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        @media (max-width: 520px) {
+          .addr-card-head { flex-direction: column; gap: 10px; }
+          .addr-progress { grid-template-columns: 1fr; }
+          .addr-form-grid { grid-template-columns: 1fr; }
+        }
       `}</style>
 
       {/* ── Main Grid ── */}
@@ -499,26 +534,26 @@ export default function CartPage() {
             <Link
               href="/"
               className="otw-back-btn"
-              style={{ width: 40, height: 40, borderRadius: "10px", background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, boxShadow: "0 2px 8px rgba(0,0,0,0.08)", color: "#0A0F2E", textDecoration: "none", transition: "background 0.2s" }}
+              style={{ width: 40, height: 40, borderRadius: "50%", background: "transparent", border: "1px solid rgba(255,255,255,0.18)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, color: "#F4F4F2", textDecoration: "none", transition: "background 0.2s" }}
             >
               <ArrowLeft size={18} />
             </Link>
             <div style={{ minWidth: 0 }}>
-              <h1 style={{ fontSize: "clamp(1.4rem, 4vw, 1.9rem)", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.5px", margin: 0, color: "#0A0F2E", lineHeight: 1.1 }}>My Cart</h1>
-              <p style={{ fontSize: "0.8rem", color: "#6B7280", margin: "2px 0 0", fontWeight: 500 }}>Review your order and place</p>
+              <h1 style={{ fontSize: "clamp(1.4rem, 4vw, 1.9rem)", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.5px", margin: 0, color: "#F4F4F2", lineHeight: 1.1 }}>My Cart</h1>
+              <p style={{ fontSize: "0.8rem", color: "#A8A8A4", margin: "2px 0 0", fontWeight: 500 }}>Review your pieces and place your order</p>
             </div>
           </div>
 
           {/* ── Cart Items Card ── */}
           <div style={cardStyle}>
-            <p style={{ fontSize: "0.72rem", fontWeight: 800, color: "#2A3060", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "16px", paddingBottom: "12px", borderBottom: "1px solid #f3f4f6" }}>
+            <p style={{ fontSize: "0.72rem", fontWeight: 800, color: "#F4F4F2", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "16px", paddingBottom: "12px", borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
               Order Summary &nbsp;·&nbsp; {cart.length} {cart.length === 1 ? "item" : "items"}
             </p>
             <div style={{ display: "flex", flexDirection: "column" }}>
               {cart.map((c, idx) => (
                 <div
                   key={c.cartItemId ?? `cart-${c.item.id}-${idx}`}
-                  style={{ display: "flex", gap: "12px", alignItems: "flex-start", padding: "14px 0", borderBottom: idx < cart.length - 1 ? "1px solid #f9fafb" : "none" }}
+                  style={{ display: "flex", gap: "12px", alignItems: "flex-start", padding: "14px 0", borderBottom: idx < cart.length - 1 ? "1px solid rgba(255,255,255,0.08)" : "none" }}
                 >
                   {/* Clever Product image */}
                   <CartItemThumbnail item={c.item} quantity={c.quantity} />
@@ -527,21 +562,21 @@ export default function CartPage() {
                   <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", minHeight: "68px" }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                       <div style={{ paddingRight: "10px" }}>
-                        <div style={{ fontWeight: 800, fontSize: "0.97rem", color: "#0A0F2E", letterSpacing: "0.2px", overflow: "hidden", textOverflow: "ellipsis", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>{c.item.name}</div>
+                        <div style={{ fontWeight: 800, fontSize: "0.97rem", color: "#F4F4F2", letterSpacing: "0.2px", overflow: "hidden", textOverflow: "ellipsis", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>{c.item.name}</div>
                         <div style={{ color: "#9ca3af", fontSize: "0.78rem", marginTop: "2px", textTransform: "capitalize" }}>{c.item.category || "Item"}</div>
                       </div>
                       <button
                         className="otw-del-btn"
                         onClick={() => removeFromCart(c.cartItemId || c.item.id)}
-                        style={{ width: 32, height: 32, borderRadius: "8px", border: "1.5px solid #fecaca", background: "transparent", color: "#f87171", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", transition: "all 0.15s", flexShrink: 0 }}
+                        style={{ width: 32, height: 32, borderRadius: "50%", border: "1px solid rgba(255,255,255,0.16)", background: "#171717", color: "#F4F4F2", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", transition: "all 0.15s", flexShrink: 0 }}
                       ><Trash2 size={14} /></button>
                     </div>
 
                     {c.lineDetails && (
-                      <div style={{ marginTop: "4px", fontSize: "0.78rem", color: "#0135FB", lineHeight: 1.4 }}>{c.lineDetails}</div>
+                      <div style={{ marginTop: "4px", fontSize: "0.78rem", color: "#C9C9C5", lineHeight: 1.4 }}>{c.lineDetails}</div>
                     )}
                     {!c.lineDetails && c.selectedCustomizations && c.selectedCustomizations.length > 0 && (
-                      <div style={{ marginTop: "4px", fontSize: "0.78rem", color: "#0135FB" }}>
+                      <div style={{ marginTop: "4px", fontSize: "0.78rem", color: "#C9C9C5" }}>
                         {c.selectedCustomizations.map(sc => `${sc.category}: ${sc.option}`).join(" · ")}
                       </div>
                     )}
@@ -553,18 +588,18 @@ export default function CartPage() {
 
                     {/* Price + controls row */}
                     <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginTop: "auto", paddingTop: "8px" }}>
-                      <div style={{ fontWeight: 900, fontSize: "1rem", color: "#0135FB", flexShrink: 0 }}>₹{c.unitPrice ?? c.item.price}</div>
-                      <div style={{ display: "flex", alignItems: "center", border: "1.5px solid #e5e7eb", borderRadius: "8px", overflow: "hidden", background: "#fff" }}>
+                      <div style={{ fontWeight: 900, fontSize: "1rem", color: "#F4F4F2", flexShrink: 0 }}>₹{(c.unitPrice ?? c.item.price).toLocaleString("en-IN")}</div>
+                      <div style={{ display: "flex", alignItems: "center", border: "1px solid rgba(255,255,255,0.16)", borderRadius: "99px", overflow: "hidden", background: "#171717" }}>
                         <button
                           className="otw-qty-btn"
                           onClick={() => updateQuantity(c.cartItemId || c.item.id, c.quantity - 1)}
-                          style={{ width: 30, height: 30, border: "none", background: "transparent", color: "#0A0F2E", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "background 0.15s" }}
+                          style={{ width: 30, height: 30, border: "none", background: "transparent", color: "#F4F4F2", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "background 0.15s" }}
                         ><Minus size={13} /></button>
-                        <span style={{ fontWeight: 700, width: "26px", textAlign: "center", fontSize: "0.9rem", color: "#0A0F2E" }}>{c.quantity}</span>
+                        <span style={{ fontWeight: 700, width: "26px", textAlign: "center", fontSize: "0.9rem", color: "#F4F4F2" }}>{c.quantity}</span>
                         <button
                           className="otw-qty-btn"
                           onClick={() => updateQuantity(c.cartItemId || c.item.id, c.quantity + 1)}
-                          style={{ width: 30, height: 30, border: "none", background: "transparent", color: "#0A0F2E", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "background 0.15s" }}
+                          style={{ width: 30, height: 30, border: "none", background: "transparent", color: "#F4F4F2", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "background 0.15s" }}
                         ><Plus size={13} /></button>
                       </div>
                     </div>
@@ -576,10 +611,33 @@ export default function CartPage() {
 
           {/* ── Delivery Details Card ── */}
           <div style={cardStyle}>
-            <p style={{ fontSize: "0.72rem", fontWeight: 800, color: "#2A3060", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "18px", display: "flex", alignItems: "center", gap: "7px" }}>
-              <MapPin size={14} color="#0135FB" /> Shipping address
-            </p>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px" }}>
+            <div className="addr-card-head">
+              <div className="addr-title-wrap">
+                <span className="addr-icon">
+                  <MapPin size={16} color="#0A0A0A" />
+                </span>
+                <div>
+                  <p className="addr-title">Shipping details</p>
+                  <p className="addr-sub">Tell us where to send your order.</p>
+                </div>
+              </div>
+              <span className={`addr-status${isAddressValid ? " ready" : ""}`}>
+                {isAddressValid ? "Address complete" : `${addressDone}/3 complete`}
+              </span>
+            </div>
+
+            <div className="addr-progress">
+              {addressSteps.map((step, idx) => (
+                <div key={step.label} className={`addr-step${step.done ? " done" : ""}`}>
+                  <span className="addr-step-dot">{step.done ? "✓" : idx + 1}</span>
+                  <span className="addr-step-label">{step.label}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="addr-form-grid">
+              <div className="addr-section"><span>01 · Contact</span></div>
+
               {!isLoggedIn ? (
                 <>
                   <div style={{ gridColumn: "1 / -1" }}>
@@ -589,14 +647,14 @@ export default function CartPage() {
                   <div style={{ gridColumn: "1 / -1" }}>
                     <label style={labelStyle}>Phone Number</label>
                     <div style={{ display: "flex", gap: "10px" }}>
-                      <div style={{ padding: "13px 12px", borderRadius: "8px", border: "1.5px solid #e5e7eb", background: "#f9fafb", fontWeight: 700, fontSize: "0.88rem", color: "#0A0F2E", flexShrink: 0 }}>🇮🇳 +91</div>
+                      <div style={{ padding: "13px 12px", borderRadius: "4px", border: "1px solid rgba(255,255,255,0.16)", background: "#171717", fontWeight: 700, fontSize: "0.88rem", color: "#F4F4F2", flexShrink: 0 }}>🇮🇳 +91</div>
                       <input type="tel" style={{ ...inputStyle, flex: 1 }} className="otw-cart-input" placeholder="98765 43210" value={phone} onChange={e => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))} maxLength={10} />
                     </div>
                   </div>
                 </>
               ) : (
-                <div style={{ gridColumn: "1 / -1", background: "#EEF1FF", borderRadius: "10px", padding: "14px 16px", display: "flex", alignItems: "center", gap: "12px" }}>
-                  <div style={{ width: 40, height: 40, borderRadius: "50%", background: "#0135FB", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: "1rem", overflow: "hidden", flexShrink: 0 }}>
+                <div style={{ gridColumn: "1 / -1", background: "#171717", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "4px", padding: "14px 16px", display: "flex", alignItems: "center", gap: "12px" }}>
+                  <div style={{ width: 40, height: 40, borderRadius: "50%", background: "#F4F4F2", color: "#0A0A0A", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: "1rem", overflow: "hidden", flexShrink: 0 }}>
                     {(profile as any)?.image ? (
                       <img src={(profile as any).image} alt="Profile" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                     ) : (
@@ -604,11 +662,13 @@ export default function CartPage() {
                     )}
                   </div>
                   <div>
-                    <div style={{ fontWeight: 800, color: "#0A0F2E", fontSize: "0.95rem", textTransform: "capitalize" }}>{profile?.name || name}</div>
-                    <div style={{ fontSize: "0.8rem", color: "#6B7280", marginTop: "2px" }}>+91 {profile?.phone || phone}</div>
+                    <div style={{ fontWeight: 800, color: "#F4F4F2", fontSize: "0.95rem", textTransform: "capitalize" }}>{profile?.name || name}</div>
+                    <div style={{ fontSize: "0.8rem", color: "#A8A8A4", marginTop: "2px" }}>+91 {profile?.phone || phone}</div>
                   </div>
                 </div>
               )}
+
+              <div className="addr-section"><span>02 · Address</span></div>
 
               <div style={{ gridColumn: "1 / -1", display: "flex", gap: 8 }}>
                 {(["home", "work", "other"] as const).map((t) => (
@@ -619,10 +679,10 @@ export default function CartPage() {
                     style={{
                       flex: 1,
                       padding: "9px 8px",
-                      borderRadius: 10,
-                      border: addressType === t ? "1.5px solid #0135FB" : "1.5px solid #E5E7EB",
-                      background: addressType === t ? "#EEF1FF" : "#fff",
-                      color: addressType === t ? "#0135FB" : "#475569",
+                      borderRadius: 999,
+                      border: addressType === t ? "1px solid #F4F4F2" : "1px solid rgba(255,255,255,0.16)",
+                      background: addressType === t ? "#F4F4F2" : "#171717",
+                      color: addressType === t ? "#0A0A0A" : "#A8A8A4",
                       fontWeight: 800,
                       fontSize: "0.78rem",
                       cursor: "pointer",
@@ -673,7 +733,7 @@ export default function CartPage() {
                     } else {
                       toast.error("Geolocation is not supported by your browser");
                     }
-                  }} disabled={isGpsLoading} style={{ background: "transparent", border: "none", color: isGpsLoading ? "#9CA3AF" : "#0135FB", fontSize: "0.75rem", fontWeight: 700, cursor: isGpsLoading ? "not-allowed" : "pointer", display: "flex", alignItems: "center", gap: "6px" }}>
+                  }} disabled={isGpsLoading} style={{ background: "transparent", border: "none", color: isGpsLoading ? "#6E6E6A" : "#F4F4F2", fontSize: "0.75rem", fontWeight: 700, cursor: isGpsLoading ? "not-allowed" : "pointer", display: "flex", alignItems: "center", gap: "6px" }}>
                     {isGpsLoading ? <div style={{ width: 12, height: 12, borderRadius: "50%", border: "2px solid #9CA3AF", borderTopColor: "transparent", animation: "spin-wait 1s linear infinite" }} /> : <MapPin size={12} />}
                     {isGpsLoading ? "Locating..." : "Use GPS"}
                   </button>
@@ -716,8 +776,10 @@ export default function CartPage() {
                 </select>
               </div>
 
-              <div>
-                <label style={labelStyle}>Scheduled Time</label>
+              <div className="addr-section"><span>03 · Delivery</span></div>
+
+              <div style={{ gridColumn: "1 / -1" }}>
+                <label style={labelStyle}>Delivery speed</label>
                 <div className="time-slot-grid">
                   {TIME_SLOTS.map(slot => (
                     <button
@@ -742,6 +804,28 @@ export default function CartPage() {
               </div>
             </div>
 
+            <div className="addr-preview">
+              <span className="addr-preview-icon">
+                <MapPin size={15} color="#fff" />
+              </span>
+              <div style={{ minWidth: 0 }}>
+                <p className="addr-preview-label">Delivering to</p>
+                {isAddressValid ? (
+                  <>
+                    <div className="addr-preview-name">
+                      {profile?.name || name || "ORBT customer"}
+                      {phoneDigits ? ` · +91 ${phoneDigits}` : ""}
+                    </div>
+                    <div className="addr-preview-line">{formattedAddress}</div>
+                  </>
+                ) : (
+                  <div className="addr-preview-empty">
+                    Add your street, city, state, and 6-digit PIN to preview the delivery address.
+                  </div>
+                )}
+              </div>
+            </div>
+
             {!isLoggedIn && (
               <div style={{ marginTop: "18px", padding: "12px 14px", borderRadius: "10px", background: "#FEF3C7", fontSize: "0.83rem", color: "#92400E", lineHeight: 1.55, display: "flex", gap: "10px", alignItems: "flex-start" }}>
                 <span style={{ fontSize: "1rem", flexShrink: 0 }}>⚠️</span>
@@ -759,14 +843,14 @@ export default function CartPage() {
 
           {/* Coupon */}
           <div style={cardStyle}>
-            <p style={{ fontSize: "0.72rem", fontWeight: 800, color: "#2A3060", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "14px", display: "flex", alignItems: "center", gap: "7px" }}>
-              <Tag size={14} color="#0135FB" /> Offers & Coupons
+            <p style={{ fontSize: "0.72rem", fontWeight: 800, color: "#F4F4F2", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "14px", display: "flex", alignItems: "center", gap: "7px" }}>
+              <Tag size={14} color="#000000" /> Offers & Coupons
             </p>
             {appliedCoupon ? (
-              <div style={{ background: "#EEF1FF", borderRadius: "10px", padding: "14px 16px", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "10px" }}>
+              <div style={{ background: "#171717", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "4px", padding: "14px 16px", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "10px" }}>
                 <div>
-                  <div style={{ fontWeight: 800, color: "#0135FB", fontSize: "0.88rem" }}>{couponCode} APPLIED ✓</div>
-                  <div style={{ fontSize: "0.78rem", color: "#6B7280", marginTop: "2px" }}>{appliedCoupon.label}</div>
+                  <div style={{ fontWeight: 800, color: "#F4F4F2", fontSize: "0.88rem" }}>{couponCode} APPLIED ✓</div>
+                  <div style={{ fontSize: "0.78rem", color: "#A8A8A4", marginTop: "2px" }}>{appliedCoupon.label}</div>
                 </div>
                 <button onClick={() => { setAppliedCoupon(null); setCouponCode(""); }} style={{ border: "none", background: "none", color: "#EF4444", cursor: "pointer", fontSize: "0.78rem", fontWeight: 800, whiteSpace: "nowrap" }}>REMOVE</button>
               </div>
@@ -776,7 +860,7 @@ export default function CartPage() {
                 <button
                   className="otw-apply-btn"
                   onClick={handleApplyCoupon}
-                  style={{ background: "#0135FB", color: "#fff", border: "none", padding: "0 18px", borderRadius: "8px", fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap", fontFamily: "inherit", boxShadow: "0 3px 0 #0028D4", transition: "background 0.15s" }}
+                  style={{ background: "#000000", color: "#fff", border: "none", padding: "0 18px", borderRadius: "8px", fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap", fontFamily: "inherit", boxShadow: "0 3px 0 #111111", transition: "background 0.15s" }}
                 >Apply</button>
               </div>
             )}
@@ -784,16 +868,16 @@ export default function CartPage() {
 
           {/* Bill Details */}
           <div style={cardStyle}>
-            <p style={{ fontSize: "0.72rem", fontWeight: 800, color: "#2A3060", textTransform: "uppercase", letterSpacing: "1px", paddingBottom: "12px", borderBottom: "1px solid #f3f4f6", marginBottom: "16px" }}>
+            <p style={{ fontSize: "0.72rem", fontWeight: 800, color: "#F4F4F2", textTransform: "uppercase", letterSpacing: "1px", paddingBottom: "12px", borderBottom: "1px solid rgba(255,255,255,0.1)", marginBottom: "16px" }}>
               Bill Details
             </p>
             <div style={{ display: "flex", flexDirection: "column", gap: "13px", fontSize: "0.92rem" }}>
               <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <span style={{ color: "#6B7280" }}>Item Total</span>
-                <span style={{ fontWeight: 600, color: "#0A0F2E" }}>₹{cartTotal}</span>
+                <span style={{ color: "#A8A8A4" }}>Item Total</span>
+                <span style={{ fontWeight: 600, color: "#F4F4F2" }}>₹{cartTotal.toLocaleString("en-IN")}</span>
               </div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span style={{ color: "#6B7280" }}>Delivery Fee</span>
+                <span style={{ color: "#A8A8A4" }}>Shipping Fee</span>
                 {effectiveDeliveryFee === 0 ? (
                   <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                     {deliveryFee > 0 && (
@@ -803,17 +887,18 @@ export default function CartPage() {
                     )}
                     <span style={{
                       fontWeight: 800,
-                      color: "#16A34A",
-                      background: "#DCFCE7",
+                      color: "#F4F4F2",
+                      background: "#242424",
+                      border: "1px solid rgba(255,255,255,0.18)",
                       padding: "2px 8px",
-                      borderRadius: 6,
+                      borderRadius: 999,
                       fontSize: "0.78rem"
                     }}>
-                      {hasOnndawayFoodOrCoffee ? "FREE (Food & Coffee)" : "FREE"}
+                      FREE
                     </span>
                   </div>
                 ) : (
-                  <span style={{ fontWeight: 600, color: "#0A0F2E" }}>₹{deliveryFee}</span>
+                  <span style={{ fontWeight: 600, color: "#F4F4F2" }}>₹{deliveryFee.toLocaleString("en-IN")}</span>
                 )}
               </div>
               {appliedCoupon && (
@@ -822,138 +907,29 @@ export default function CartPage() {
                   <span style={{ fontWeight: 700 }}>-₹{finalDiscount.toFixed(2)}</span>
                 </div>
               )}
-              <div style={{ borderTop: "1px dashed #e5e7eb", margin: "2px 0" }} />
+              <div style={{ borderTop: "1px dashed rgba(255,255,255,0.16)", margin: "2px 0" }} />
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: "1.1rem", fontWeight: 900 }}>
-                <span style={{ color: "#0A0F2E" }}>To Pay</span>
-                <span style={{ color: "#0135FB" }}>₹{grandTotal.toFixed(2)}</span>
+                <span style={{ color: "#F4F4F2" }}>To Pay</span>
+                <span style={{ color: "#F4F4F2" }}>₹{grandTotal.toLocaleString("en-IN")}</span>
               </div>
             </div>
 
-            {/* ── MINIMUM ORDER PROGRESS BAR (ABOVE PAYMENT) ── */}
-            {targetMinOrder > 0 && (
-              <div style={{ marginTop: "16px" }}>
-                {!isMinOrderMet ? (
-                  <div style={{
-                    background: "linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%)",
-                    border: "2px solid #2563EB",
-                    borderRadius: 16,
-                    padding: "16px 18px",
-                    boxShadow: "0 6px 20px rgba(37, 99, 235, 0.16)",
-                    position: "relative",
-                    overflow: "hidden"
-                  }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <span style={{ fontSize: "1.3rem" }}>🛵</span>
-                        <div>
-                          <div style={{ fontWeight: 900, fontSize: "0.92rem", color: "#1E3A8A", textTransform: "uppercase", letterSpacing: "0.3px" }}>
-                            Min. ₹{targetMinOrder} to place order
-                          </div>
-                          <div style={{ fontSize: "0.78rem", color: "#1D4ED8", fontWeight: 700 }}>
-                            Cart: ₹{cartTotal.toFixed(0)} · Need ₹{minOrderShortfall.toFixed(0)} more
-                          </div>
-                        </div>
-                      </div>
-                      <span style={{
-                        background: "#1D4ED8", color: "#FFFFFF",
-                        padding: "3px 10px", borderRadius: 999,
-                        fontWeight: 900, fontSize: "0.78rem"
-                      }}>
-                        {minOrderPct}%
-                      </span>
-                    </div>
-
-                    {/* Animated Progress Bar */}
-                    <div style={{ width: "100%", height: 10, background: "rgba(37, 99, 235, 0.18)", borderRadius: 999, overflow: "hidden", margin: "10px 0 8px" }}>
-                      <div style={{
-                        width: `${minOrderPct}%`,
-                        height: "100%",
-                        background: "linear-gradient(90deg, #3B82F6, #1D4ED8)",
-                        borderRadius: 999,
-                        transition: "width 0.4s ease-in-out",
-                        boxShadow: "0 0 10px rgba(37, 99, 235, 0.6)",
-                      }} />
-                    </div>
-
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 8, flexWrap: "wrap", gap: 8 }}>
-                      <span style={{ fontSize: "0.82rem", color: "#1E40AF", fontWeight: 800 }}>
-                        Add ₹{minOrderShortfall.toFixed(0)} more to place this order
-                      </span>
-                      <Link href="/menu" style={{
-                        fontSize: "0.78rem", fontWeight: 800, color: "#FFFFFF",
-                        background: "#0135FB", padding: "6px 14px", borderRadius: 8,
-                        textDecoration: "none", boxShadow: "0 2px 8px rgba(1,53,251,0.3)"
-                      }}>
-                        + Add Items →
-                      </Link>
-                    </div>
-                  </div>
-                ) : (
-                  <div style={{
-                    background: "linear-gradient(135deg, #064E3B 0%, #065F46 100%)",
-                    border: "1.5px solid rgba(52, 211, 153, 0.45)",
-                    borderRadius: 16,
-                    padding: "14px 18px",
-                    boxShadow: "0 6px 20px rgba(5, 150, 105, 0.22)",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 8,
-                  }}>
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-                      <span style={{ color: "#34D399", display: "flex", alignItems: "center", gap: 6, fontWeight: 900, fontSize: "0.86rem" }}>
-                        <Sparkles size={16} color="#34D399" style={{ flexShrink: 0 }} />
-                        <span>MIN ORDER MET — READY TO CHECKOUT! 🎉</span>
-                      </span>
-                      <span style={{
-                        background: "rgba(52, 211, 153, 0.2)", color: "#34D399",
-                        padding: "3px 9px", borderRadius: 999,
-                        fontWeight: 900, fontSize: "0.72rem", flexShrink: 0
-                      }}>
-                        ₹{cartTotal.toFixed(0)} / ₹{targetMinOrder}
-                      </span>
-                    </div>
-                    <div style={{
-                      height: 10,
-                      borderRadius: 99,
-                      background: "rgba(255, 255, 255, 0.15)",
-                      overflow: "hidden",
-                      width: "100%",
-                    }}>
-                      <div style={{
-                        height: "100%",
-                        width: "100%",
-                        borderRadius: 99,
-                        background: "linear-gradient(90deg, #10B981, #34D399, #6EE7B7)",
-                        boxShadow: "0 0 12px rgba(52,211,153,0.9)",
-                      }} />
-                    </div>
-                    <div style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.85)", fontWeight: 600 }}>
-                      {isFreeDeliveryEligible ? "✅ Free shipping unlocked on this order!" : "✅ Minimum order met — ready to ship!"}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Warning notice when payment is disabled */}
-            {!isMinOrderMet && (
+            {isFreeDeliveryEligible && (
               <div style={{
                 marginTop: "16px",
-                padding: "12px 14px",
-                borderRadius: 12,
-                background: "#FEF2F2",
-                border: "1.5px solid #FCA5A5",
-                color: "#991B1B",
-                fontSize: "0.82rem",
-                fontWeight: 700,
+                padding: "14px 18px",
+                borderRadius: "12px",
+                background: "#0A0A0A",
+                color: "#F4F4F2",
                 display: "flex",
+                justifyContent: "space-between",
+                gap: 12,
                 alignItems: "center",
-                gap: 8,
+                fontSize: "0.8rem",
+                fontWeight: 700,
               }}>
-                <span style={{ fontSize: "1.1rem" }}>🚫</span>
-                <span>
-                  Add ₹{minOrderShortfall.toFixed(0)} more to reach the ₹{targetMinOrder} minimum order.
-                </span>
+                <span>Free shipping unlocked on this order</span>
+                <span style={{ fontSize: "0.68rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(255,255,255,0.6)" }}>₹{cartTotal.toFixed(0)}</span>
               </div>
             )}
 
@@ -1032,17 +1008,17 @@ export default function CartPage() {
                           fontWeight: 700,
                           background:
                             !onlinePaymentEnabled && canPlace
-                              ? "#0135FB"
+                              ? "#000000"
                               : "transparent",
                           color:
                             !onlinePaymentEnabled && canPlace
                               ? "#ffffff"
                               : canPlace
-                                ? "#0A0F2E"
+                                ? "#0A0A0A"
                                 : "#9ca3af",
                           border:
                             !onlinePaymentEnabled && canPlace
-                              ? "1.5px solid #0028D4"
+                              ? "1.5px solid #111111"
                               : canPlace
                                 ? "1.5px solid #d1d5db"
                                 : "1.5px solid #e5e7eb",
@@ -1060,22 +1036,22 @@ export default function CartPage() {
                         onMouseOver={(e) => {
                           if (canPlace) {
                             if (!onlinePaymentEnabled) {
-                              e.currentTarget.style.background = "#0028D4";
+                              e.currentTarget.style.background = "#111111";
                             } else {
-                              e.currentTarget.style.background = "#F5F7FF";
-                              e.currentTarget.style.borderColor = "#0135FB";
-                              e.currentTarget.style.color = "#0135FB";
+                              e.currentTarget.style.background = "#FAFAFA";
+                              e.currentTarget.style.borderColor = "#000000";
+                              e.currentTarget.style.color = "#000000";
                             }
                           }
                         }}
                         onMouseOut={(e) => {
                           if (canPlace) {
                             if (!onlinePaymentEnabled) {
-                              e.currentTarget.style.background = "#0135FB";
+                              e.currentTarget.style.background = "#000000";
                             } else {
                               e.currentTarget.style.background = "transparent";
                               e.currentTarget.style.borderColor = "#d1d5db";
-                              e.currentTarget.style.color = "#0A0F2E";
+                              e.currentTarget.style.color = "#0A0A0A";
                             }
                           }
                         }}
@@ -1119,21 +1095,21 @@ export default function CartPage() {
             boxShadow: "0 20px 40px rgba(0,0,0,0.2)", animation: "slide-up 0.3s ease-out"
           }}>
             <div style={{ fontSize: "3rem", marginBottom: "16px" }}>😅</div>
-            <h3 style={{ fontSize: "1.25rem", fontWeight: 900, color: "#0A0F2E", marginBottom: "12px", letterSpacing: "0.5px", textTransform: "uppercase" }}>
+            <h3 style={{ fontSize: "1.25rem", fontWeight: 900, color: "#0A0A0A", marginBottom: "12px", letterSpacing: "0.5px", textTransform: "uppercase" }}>
               Trouble paying online?
             </h3>
             <p style={{ color: "#6B7280", fontSize: "0.9rem", lineHeight: 1.5, marginBottom: "24px", fontWeight: 500 }}>
-              It seems you're having trouble with the online payment. Don't worry, you can place your order via <strong style={{ color: "#0A0F2E" }}>Cash on Delivery</strong> instead!
+              It seems you're having trouble with the online payment. Don't worry, you can place your order via <strong style={{ color: "#0A0A0A" }}>Cash on Delivery</strong> instead!
             </p>
             <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
               <button
                 onClick={handlePlaceCOD}
                 disabled={placing}
                 style={{
-                  width: "100%", padding: "14px", background: "#0135FB", color: "#fff",
+                  width: "100%", padding: "14px", background: "#000000", color: "#fff",
                   border: "none", borderRadius: "12px", fontWeight: 800, fontSize: "0.95rem",
                   cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
-                  boxShadow: "0 4px 0 #0028D4", textTransform: "uppercase", letterSpacing: "0.5px", transition: "transform 0.15s"
+                  boxShadow: "0 4px 0 #111111", textTransform: "uppercase", letterSpacing: "0.5px", transition: "transform 0.15s"
                 }}
                 onMouseDown={e => e.currentTarget.style.transform = "translateY(4px)"}
                 onMouseUp={e => e.currentTarget.style.transform = "translateY(0)"}

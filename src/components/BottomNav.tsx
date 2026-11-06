@@ -1,31 +1,36 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Shirt, ShoppingBag, ClipboardList, User } from "lucide-react";
+import { Sparkles, Shirt, ShoppingBag, ClipboardList, User } from "lucide-react";
 import { useApp } from "@/lib/context";
-import { useState, useEffect } from "react";
+import { useSyncExternalStore } from "react";
+
+const emptySubscribe = () => () => {};
+const useMounted = () =>
+  useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
 
 export default function BottomNav() {
   const pathname = usePathname();
   const { cartCount, profile } = useApp();
-  const [mounted, setMounted] = useState(false);
+  const mounted = useMounted();
 
-  useEffect(() => { setMounted(true); }, []);
-
-  if (pathname.startsWith("/admin") || pathname.startsWith("/delivery") || pathname.startsWith("/store") || pathname.startsWith("/vendor")) return null;
+  if (
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/delivery") ||
+    pathname.startsWith("/store") ||
+    pathname.startsWith("/vendor")
+  )
+    return null;
   if (cartCount > 0) return null;
 
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/";
     return pathname.startsWith(href);
   };
-
-  const tabs = [
-    { href: "/", label: "Home", Icon: Home },
-    { href: "/menu", label: "Menu", Icon: UtensilsCrossed },
-    { href: "/orders", label: "Orders", Icon: ClipboardList },
-    { href: "/profile", label: "Profile", Icon: User },
-  ];
 
   return (
     <>
@@ -40,12 +45,12 @@ export default function BottomNav() {
           left: 0;
           right: 0;
           z-index: 900;
-          background: #fff;
-          border-top: 1px solid rgba(0,0,0,0.07);
+          background: #000000;
+          border-top: 1px solid rgba(255, 255, 255, 0.16);
           display: flex;
           align-items: stretch;
           justify-content: space-around;
-          height: 50px;
+          height: 62px;
           padding-bottom: env(safe-area-inset-bottom);
         }
 
@@ -56,52 +61,46 @@ export default function BottomNav() {
           justify-content: center;
           gap: 3px;
           text-decoration: none;
-          color: #9ca3af;
+          color: #6E6E6A;
           flex: 1;
           padding: 6px 4px 4px;
           -webkit-tap-highlight-color: transparent;
-          transition: color 0.18s;
+          transition: color 0.18s ease;
           position: relative;
         }
 
-        .bnav-tab.active {
-          color: #0135FB;
-        }
+        .bnav-tab.active { color: #F4F4F2; }
 
         .bnav-tab-icon {
           display: flex;
           align-items: center;
           justify-content: center;
-          width: 28px;
-          height: 28px;
+          width: 26px;
+          height: 26px;
           position: relative;
         }
 
-        /* Active indicator — tiny dot */
-        .bnav-tab.active .bnav-dot {
-          display: block;
-        }
         .bnav-dot {
           display: none;
           position: absolute;
           bottom: -3px;
           left: 50%;
           transform: translateX(-50%);
-          width: 4px;
-          height: 4px;
+          width: 3px;
+          height: 3px;
           border-radius: 50%;
-          background: #0135FB;
+          background: #F4F4F2;
         }
+        .bnav-tab.active .bnav-dot { display: block; }
 
         .bnav-tab-label {
-          font-size: 0.6rem;
+          font-size: 0.54rem;
           font-weight: 700;
-          letter-spacing: 0.02em;
+          letter-spacing: 0.1em;
           text-transform: uppercase;
           line-height: 1;
         }
 
-        /* Center cart FAB */
         .bnav-cart-wrap {
           flex: 1;
           display: flex;
@@ -112,23 +111,19 @@ export default function BottomNav() {
         }
 
         .bnav-cart {
-          width: 46px;
-          height: 46px;
+          width: 44px;
+          height: 44px;
           border-radius: 50%;
-          background: #0135FB;
+          background: #F4F4F2;
           display: flex;
           align-items: center;
           justify-content: center;
-          color: white;
+          color: #080808;
           position: relative;
-          box-shadow: 0 4px 16px rgba(1,53,251,0.35);
-          transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s;
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+          transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
-
-        .bnav-cart:active {
-          transform: scale(0.9);
-          box-shadow: 0 2px 8px rgba(1,53,251,0.25);
-        }
+        .bnav-cart:active { transform: scale(0.92); }
 
         .bnav-badge {
           position: absolute;
@@ -136,84 +131,79 @@ export default function BottomNav() {
           right: -2px;
           min-width: 17px;
           height: 17px;
-          background: #ef4444;
-          color: white;
-          font-size: 0.58rem;
+          background: #080808;
+          color: #fff;
+          font-size: 0.54rem;
           font-weight: 900;
           border-radius: 10px;
           display: flex;
           align-items: center;
           justify-content: center;
-          border: 2px solid white;
+          border: 1.5px solid #F4F4F2;
           padding: 0 2px;
         }
 
         .bnav-avatar {
-          width: 24px;
-          height: 24px;
+          width: 22px;
+          height: 22px;
           border-radius: 50%;
           object-fit: cover;
           display: block;
         }
 
         .bnav-avatar-init {
-          width: 24px;
-          height: 24px;
+          width: 22px;
+          height: 22px;
           border-radius: 50%;
-          background: #0135FB;
-          color: white;
+          background: #F4F4F2;
+          color: #080808;
           display: flex;
           align-items: center;
           justify-content: center;
           font-weight: 900;
-          font-size: 0.68rem;
+          font-size: 0.64rem;
         }
 
         .bnav-tab.active .bnav-avatar,
         .bnav-tab.active .bnav-avatar-init {
-          box-shadow: 0 0 0 2px #0135FB;
+          box-shadow: 0 0 0 1.5px #F4F4F2;
         }
       `}</style>
 
       <nav className="bnav-root" role="navigation" aria-label="Main navigation">
-        {/* Home */}
         <Link href="/" className={`bnav-tab ${isActive("/") ? "active" : ""}`}>
           <div className="bnav-tab-icon">
-            <Home size={21} strokeWidth={isActive("/") ? 2.5 : 1.8} />
+            <Sparkles size={20} strokeWidth={isActive("/") ? 2.4 : 1.8} />
             <span className="bnav-dot" />
           </div>
-          <span className="bnav-tab-label">Home</span>
+          <span className="bnav-tab-label">Drops</span>
         </Link>
 
-        {/* Shop */}
         <Link href="/menu" className={`bnav-tab ${isActive("/menu") ? "active" : ""}`}>
           <div className="bnav-tab-icon">
-            <Shirt size={21} strokeWidth={isActive("/menu") ? 2.5 : 1.8} />
+            <Shirt size={20} strokeWidth={isActive("/menu") ? 2.4 : 1.8} />
             <span className="bnav-dot" />
           </div>
-          <span className="bnav-tab-label">Shop</span>
+          <span className="bnav-tab-label">Index</span>
         </Link>
 
-        {/* Cart — center bubble */}
         <Link href="/cart" className="bnav-cart-wrap" aria-label="Cart">
           <div className="bnav-cart">
-            <ShoppingBag size={20} strokeWidth={2.5} />
+            <ShoppingBag size={19} strokeWidth={2.4} />
             {cartCount > 0 && (
               <div className="bnav-badge">{cartCount > 9 ? "9+" : cartCount}</div>
             )}
           </div>
         </Link>
 
-        {/* Orders */}
         <Link href="/orders" className={`bnav-tab ${isActive("/orders") ? "active" : ""}`}>
           <div className="bnav-tab-icon">
-            <ClipboardList size={21} strokeWidth={isActive("/orders") ? 2.5 : 1.8} />
+            <ClipboardList size={20} strokeWidth={isActive("/orders") ? 2.4 : 1.8} />
             <span className="bnav-dot" />
           </div>
-          <span className="bnav-tab-label">Orders</span>
+          <span className="bnav-tab-label">Vault</span>
         </Link>
 
-        {/* Profile */}
         <Link href="/profile" className={`bnav-tab ${isActive("/profile") ? "active" : ""}`}>
           <div className="bnav-tab-icon">
             {mounted && profile?.image ? (
@@ -221,14 +211,13 @@ export default function BottomNav() {
             ) : mounted && profile?.name ? (
               <div className="bnav-avatar-init">{profile.name[0].toUpperCase()}</div>
             ) : (
-              <User size={21} strokeWidth={isActive("/profile") ? 2.5 : 1.8} />
+              <User size={20} strokeWidth={isActive("/profile") ? 2.4 : 1.8} />
             )}
             <span className="bnav-dot" />
           </div>
-          <span className="bnav-tab-label">Profile</span>
+          <span className="bnav-tab-label">ID</span>
         </Link>
       </nav>
     </>
   );
 }
-

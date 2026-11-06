@@ -26,8 +26,8 @@ function PolicyContent({ text }: { text: string }) {
         if (trimmed.startsWith("•")) {
           return (
             <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: "10px", paddingLeft: "4px" }}>
-              <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#0135FB", flexShrink: 0, marginTop: "8px" }} />
-              <span style={{ color: "#4B5563", lineHeight: 1.7, fontSize: "0.93rem" }}>
+              <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#F4F4F2", flexShrink: 0, marginTop: "8px" }} />
+              <span style={{ color: "#C9C9C5", lineHeight: 1.7, fontSize: "0.93rem" }}>
                 {renderInline(trimmed.slice(1).trim())}
               </span>
             </div>
@@ -35,7 +35,7 @@ function PolicyContent({ text }: { text: string }) {
         }
 
         return (
-          <p key={i} style={{ color: "#4B5563", lineHeight: 1.75, fontSize: "0.93rem", margin: 0 }}>
+          <p key={i} style={{ color: "#C9C9C5", lineHeight: 1.75, fontSize: "0.93rem", margin: 0 }}>
             {renderInline(trimmed)}
           </p>
         );
@@ -48,7 +48,7 @@ function renderInline(text: string) {
   const parts = text.split(/(\*\*[^*]+\*\*)/g);
   return parts.map((part, i) => {
     if (part.startsWith("**") && part.endsWith("**")) {
-      return <strong key={i} style={{ color: "#0A0F2E", fontWeight: 700 }}>{part.slice(2, -2)}</strong>;
+      return <strong key={i} style={{ color: "#F4F4F2", fontWeight: 700 }}>{part.slice(2, -2)}</strong>;
     }
     return part;
   });
@@ -64,7 +64,7 @@ const POLICY_NAV = [
 
 export default function PolicyLayout({ title, lastUpdated, sections }: PolicyLayoutProps) {
   return (
-    <div style={{ background: "#F5F7FF", minHeight: "100vh" }}>
+    <div style={{ minHeight: "100vh" }}>
       <style>{`
         @keyframes policy-fade-up {
           from { opacity: 0; transform: translateY(20px); }
@@ -84,18 +84,17 @@ export default function PolicyLayout({ title, lastUpdated, sections }: PolicyLay
           text-decoration: none;
           font-size: 0.83rem;
           font-weight: 600;
-          color: #4B5563;
+          color: #A8A8A4;
           transition: all 0.15s;
-          border: 1.5px solid transparent;
+          border: 1px solid transparent;
         }
         .policy-nav-link:hover {
-          background: #EEF1FF;
-          color: #0135FB;
+          background: #171717;
+          color: #F4F4F2;
         }
         .policy-nav-link.active {
-          background: #EEF1FF;
-          color: #0135FB;
-          border-color: rgba(1,53,251,0.2);
+          background: #F4F4F2;
+          color: #0A0A0A;
           font-weight: 800;
         }
         @media (max-width: 768px) {
@@ -106,12 +105,12 @@ export default function PolicyLayout({ title, lastUpdated, sections }: PolicyLay
 
       {/* Header */}
       <div style={{
-        background: "linear-gradient(135deg, #0A0F2E 0%, #1a2460 100%)",
+        background: "#000000",
+        borderBottom: "1px solid rgba(255,255,255,0.1)",
         padding: "48px 24px 40px",
         position: "relative",
         overflow: "hidden",
       }}>
-        <div style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(circle at 10% 50%, rgba(1,53,251,0.15) 0%, transparent 50%)" }} />
         <div style={{ maxWidth: 900, margin: "0 auto", position: "relative", zIndex: 1 }}>
           <Link
             href="/"
@@ -126,8 +125,8 @@ export default function PolicyLayout({ title, lastUpdated, sections }: PolicyLay
           </Link>
           <div style={{ display: "flex", alignItems: "center", gap: "14px", marginBottom: "10px" }}>
             <div style={{
-              width: 44, height: 44, borderRadius: "12px",
-              background: "rgba(1,53,251,0.35)",
+              width: 44, height: 44, borderRadius: "50%",
+              background: "rgba(255,255,255,0.08)",
               display: "flex", alignItems: "center", justifyContent: "center",
               backdropFilter: "blur(8px)",
             }}>
@@ -157,14 +156,14 @@ export default function PolicyLayout({ title, lastUpdated, sections }: PolicyLay
 
           {/* Sidebar nav */}
           <aside className="policy-sidebar" style={{
-            background: "#fff",
-            borderRadius: "16px",
+            background: "#0F0F0F",
+            border: "1px solid rgba(255,255,255,0.1)",
+            borderRadius: "4px",
             padding: "20px 14px",
-            boxShadow: "0 2px 16px rgba(1,53,251,0.07)",
             position: "sticky",
             top: "80px",
           }}>
-            <p style={{ fontSize: "0.65rem", fontWeight: 800, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "1.2px", marginBottom: "12px", paddingLeft: "6px" }}>
+            <p style={{ fontSize: "0.65rem", fontWeight: 800, color: "#6E6E6A", textTransform: "uppercase", letterSpacing: "1.2px", marginBottom: "12px", paddingLeft: "6px" }}>
               Policies
             </p>
             {POLICY_NAV.map(nav => (
@@ -189,9 +188,9 @@ export default function PolicyLayout({ title, lastUpdated, sections }: PolicyLay
                   style={{
                     display: "inline-flex", alignItems: "center",
                     padding: "7px 14px", borderRadius: "999px",
-                    background: nav.label === title ? "#0135FB" : "#fff",
-                    color: nav.label === title ? "#fff" : "#4B5563",
-                    border: `1.5px solid ${nav.label === title ? "#0135FB" : "#e5e7eb"}`,
+                    background: nav.label === title ? "#F4F4F2" : "#0F0F0F",
+                    color: nav.label === title ? "#0A0A0A" : "#A8A8A4",
+                    border: `1px solid ${nav.label === title ? "#F4F4F2" : "rgba(255,255,255,0.16)"}`,
                     textDecoration: "none", fontSize: "0.78rem", fontWeight: 700,
                     whiteSpace: "nowrap", flexShrink: 0,
                   }}
@@ -209,17 +208,17 @@ export default function PolicyLayout({ title, lastUpdated, sections }: PolicyLay
                   key={index}
                   className="policy-section"
                   style={{
-                    background: "#fff",
-                    borderRadius: "14px",
+                    background: "#0F0F0F",
+                    border: "1px solid rgba(255,255,255,0.1)",
+                    borderRadius: "4px",
                     padding: "24px 22px",
-                    boxShadow: "0 2px 12px rgba(1,53,251,0.06)",
-                    borderLeft: "3px solid #0135FB",
+                    borderLeft: "3px solid #F4F4F2",
                   }}
                 >
                   <h2 style={{
                     fontSize: "0.92rem",
                     fontWeight: 800,
-                    color: "#0135FB",
+                    color: "#F4F4F2",
                     marginBottom: "14px",
                     letterSpacing: "0.1px",
                     lineHeight: 1.3,

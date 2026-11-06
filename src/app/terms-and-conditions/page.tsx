@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import PolicyLayout from "@/components/PolicyLayout";
 
 export const metadata: Metadata = {
-  title: "Terms & Conditions — KLOYH",
-  description: "Terms & Conditions for KLOYH.",
+  title: "Terms & Conditions — ORBT",
+  description: "Terms & Conditions for ORBT.",
 };
 
 export default function TermsPage() {
@@ -14,7 +14,7 @@ export default function TermsPage() {
       sections={[
         {
           heading: "1. About Us",
-          content: `KLOYH sells clothing and accessories online and ships across India. Using the site constitutes acceptance of these terms.`,
+          content: `ORBT sells clothing and accessories online and ships across India. Using the site constitutes acceptance of these terms.`,
         },
         {
           heading: "2. Orders & Availability",

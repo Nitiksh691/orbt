@@ -1,705 +1,511 @@
 "use client";
-import { useState, useMemo, useEffect, useCallback, useRef, Suspense } from "react";
-import Image from "next/image";
-import Link from "next/link";
+import { Suspense, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { ChevronRight as ChevRight, Search, X } from "lucide-react";
+import { Search, X } from "lucide-react";
 import FoodCard from "@/components/FoodCard";
 import Footer from "@/components/Footer";
-import { MenuItem } from "@/lib/types";
-import BannerSlider from "@/components/BannerSlider";
 import { useApp } from "@/lib/context";
 import { useMenu } from "@/hooks/useMenu";
 
-type World = "food" | "munchies";
+type SortKey = "featured" | "newest" | "price-low" | "price-high";
 
-const FOOD_CAT_EMOJI: Record<string, string> = {
-  all: "✦", women: "👗", men: "🧥", accessories: "👜", footwear: "👟",
-  coffee: "☕", snacks: "🍟", meals: "🍜", drinks: "🥤", desserts: "🍰",
-};
+const SORT_OPTIONS: { value: SortKey; label: string }[] = [
+  { value: "featured", label: "Featured" },
+  { value: "newest", label: "Newest" },
+  { value: "price-low", label: "Price: Low to High" },
+  { value: "price-high", label: "Price: High to Low" },
+];
 
-const MUNCHIES_EMOJI: Record<string, string> = {
-  all: "🛒",
-};
+const labelFor = (cat: string) => cat.charAt(0).toUpperCase() + cat.slice(1);
 
-function getTimeOfDay(): string {
-  const h = new Date().getHours();
-  if (h < 12) return "morning";
-  if (h < 17) return "afternoon";
-  if (h < 20) return "evening";
-  return "night";
-}
-
-function CatLabel(cat: string) {
-  return cat.charAt(0).toUpperCase() + cat.slice(1);
-}
-
-/* ── Horizontal scroll / 2-col grid section ── */
-function HScrollRow({ items, label, emoji, viewAllCategory, layout, cart, onAdd, onUpdateQuantity, onViewAll }: {
-  items: MenuItem[];
-  label: string;
-  emoji: string;
-  viewAllCategory?: string;
-  layout: "horizontal" | "vertical";
-  cart: any[];
-  onAdd: any;
-  onUpdateQuantity: any;
-  onViewAll: (cat: string) => void;
+function MenuContent({
+  initialCategory,
+  initialQuery,
+}: {
+  initialCategory: string;
+  initialQuery: string;
 }) {
-  if (items.length === 0) return null;
-  return (
-    <section style={{ marginBottom: "32px" }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "14px" }}>
-        <h2 style={{ fontSize: "1.1rem", fontWeight: 800, color: "var(--text-dark)", display: "flex", alignItems: "center", gap: "6px", margin: 0 }}>
-          {emoji} {label}
-        </h2>
-        {viewAllCategory && (
-          <button
-            onClick={() => onViewAll(viewAllCategory)}
-            style={{
-              display: "flex", alignItems: "center", gap: "4px", border: "none", cursor: "pointer",
-              fontSize: "0.78rem", fontWeight: 700, color: "var(--primary)",
-              padding: "5px 10px", borderRadius: "8px", background: "var(--accent-2)",
-              transition: "all 0.15s", whiteSpace: "nowrap", flexShrink: 0,
-            }}
-          >
-            View All <ChevRight size={13} />
-          </button>
-        )}
-      </div>
-      <div className="hsr-grid">
-        {items.map(item => (
-          <div key={item.id}>
-            <FoodCard
-              item={item}
-              layout="vertical"
-              cartItem={cart.find(c => c.item.id === item.id)}
-              onAdd={onAdd}
-              onUpdateQuantity={onUpdateQuantity}
-            />
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-/* ── Munchies: brand-grouped discovery row ── */
-function BrandRow({ brand, items, cart, onAdd, onUpdateQuantity, onViewAll }: {
-  brand: string;
-  items: MenuItem[];
-  cart: any[];
-  onAdd: any;
-  onUpdateQuantity: any;
-  onViewAll: (brand: string) => void;
-}) {
-  if (items.length === 0) return null;
-  return (
-    <section style={{ marginBottom: "32px" }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "14px" }}>
-        <h2 style={{ fontSize: "1.05rem", fontWeight: 800, color: "#0F172A", margin: 0, letterSpacing: "-0.01em" }}>
-          {brand}
-        </h2>
-        {items.length > 4 && (
-          <button
-            onClick={() => onViewAll(brand)}
-            style={{
-              display: "flex", alignItems: "center", gap: "4px", border: "none", cursor: "pointer",
-              fontSize: "0.78rem", fontWeight: 700, color: "var(--primary)",
-              padding: "5px 10px", borderRadius: "8px", background: "rgba(1,53,251,0.06)",
-              whiteSpace: "nowrap", flexShrink: 0,
-            }}
-          >
-            View All <ChevRight size={13} />
-          </button>
-        )}
-      </div>
-      <div className="hsr-grid">
-        {items.map(item => (
-          <div key={item.id}>
-            <FoodCard
-              item={item}
-              layout="vertical"
-              cartItem={cart.find(c => c.item.id === item.id)}
-              onAdd={onAdd}
-              onUpdateQuantity={onUpdateQuantity}
-            />
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function MenuContent() {
-  const searchParams = useSearchParams();
-  const initialWorld = (searchParams.get("world") as World) || "food";
-
-  const [world, setWorld] = useState<World>(initialWorld);
-  const [activeCategory, setActiveCategory] = useState<string>("all");
-  const [activeBrand, setActiveBrand] = useState<string>("all");
-  const [menuLayout, setMenuLayout] = useState<"horizontal" | "vertical">("vertical");
-  const [searchQuery, setSearchQuery] = useState("");
-  const isSearching = searchQuery.trim().length > 0;
-  const [bannerSlides, setBannerSlides] = useState<any[]>([]);
-  const [bannerEnabled, setBannerEnabled] = useState(true);
   const { cart, addToCart, updateQuantity } = useApp();
-  const { menuItems: rawMenuItems, isLoading: loading } = useMenu();
+  const { menuItems: rawMenuItems, isLoading } = useMenu();
 
-  // When world switches, reset filters
-  const handleWorldSwitch = (w: World) => {
-    setWorld(w);
-    setActiveCategory("all");
-    setActiveBrand("all");
-    setSearchQuery("");
-  };
+  const normalizedCategory =
+    !initialCategory || initialCategory === "new" || initialCategory === "all"
+      ? "all"
+      : initialCategory;
 
-  useEffect(() => {
-    const fetchBanner = async () => {
-      try {
-        const res = await fetch("/api/settings/banner");
-        if (res.ok) {
-          const data = await res.json();
-          setBannerEnabled(data.bannerEnabled ?? true);
-          if (data.bannerSlides && Array.isArray(data.bannerSlides)) {
-            setBannerSlides(data.bannerSlides.filter((s: any) => s.active && s.image));
-          }
-        }
-      } catch { }
-    };
-    fetchBanner();
+  const [searchQuery, setSearchQuery] = useState(initialQuery);
+  const [activeCategory, setActiveCategory] = useState(normalizedCategory);
+  const [sort, setSort] = useState<SortKey>(
+    initialCategory === "new" ? "newest" : "featured"
+  );
 
-    const params = new URLSearchParams(window.location.search);
-    const cat = params.get("category");
-    if (cat) setActiveCategory(cat.toLowerCase());
-    const w = params.get("world") as World;
-    if (w === "munchies") setWorld("munchies");
-    const q = params.get("q");
-    if (q) setSearchQuery(q);
-  }, []);
+  const isSearching = searchQuery.trim().length > 0;
 
   const menu = useMemo(() => {
     if (!Array.isArray(rawMenuItems)) return [];
     return [...rawMenuItems]
-      .filter(item => item && (item.available || item.isLaunchingSoon))
+      .filter((item) => item && (item.available || item.isLaunchingSoon))
       .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
   }, [rawMenuItems]);
 
-  // Exclude searchOnly items from standard browsing
-  const foodItems = useMemo(() => menu.filter(i => (!i.world || i.world === "food") && !i.searchOnly), [menu]);
-  const munchiesItems = useMemo(() => menu.filter(i => i.world === "munchies" && !i.searchOnly), [menu]);
+  const catalog = useMemo(() => {
+    return menu.filter((i) => isSearching || !i.searchOnly);
+  }, [menu, isSearching]);
 
-  // Search through all items — INCLUDING searchOnly items!
-  const searchResults = useMemo(() => {
-    if (!isSearching) return [];
-    const q = searchQuery.toLowerCase().trim();
-    return menu.filter(i => {
-      return (
-        i.name.toLowerCase().includes(q) ||
-        (i.description && i.description.toLowerCase().includes(q)) ||
-        (i.category && i.category.toLowerCase().includes(q)) ||
-        (i.brand && i.brand.toLowerCase().includes(q)) ||
-        (i.tags && i.tags.some((t: string) => t.toLowerCase().includes(q)))
-      );
-    });
-  }, [menu, searchQuery, isSearching]);
+  const categories = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const item of menu) {
+      if (item.searchOnly) continue;
+      const category = (item.category || "").trim().toLowerCase();
+      if (!category) continue;
+      counts.set(category, (counts.get(category) || 0) + 1);
+    }
+    return Array.from(counts.entries())
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+      .map(([category]) => category);
+  }, [menu]);
 
-  const activeItems = world === "food" ? foodItems : munchiesItems;
+  const categoryCounts = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const item of catalog) {
+      const category = (item.category || "").trim().toLowerCase();
+      if (!category) continue;
+      counts.set(category, (counts.get(category) || 0) + 1);
+    }
+    return counts;
+  }, [catalog]);
 
-  // Food: dynamic categories from DB
-  const foodCategories = useMemo(() => {
-    const cats = Array.from(new Set(foodItems.map(i => (i.category || "").toLowerCase()))).filter(Boolean);
-    return ["all", ...cats];
-  }, [foodItems]);
+  const effectiveCategory =
+    activeCategory !== "all" && categories.length > 0 && !categories.includes(activeCategory)
+      ? "all"
+      : activeCategory;
 
-  // Munchies: dynamic brands from DB
-  const munchiesBrands = useMemo(() => {
-    const brands = Array.from(new Set(munchiesItems.map(i => i.brand || "").filter(Boolean)));
-    return ["all", ...brands];
-  }, [munchiesItems]);
+  const highlightedCategory = effectiveCategory !== "all" ? effectiveCategory : categories[0];
 
-  // Munchies: dynamic categories from DB
-  const munchiesCategories = useMemo(() => {
-    const cats = Array.from(new Set(munchiesItems.map(i => (i.category || "").toLowerCase()))).filter(Boolean);
-    return ["all", ...cats];
-  }, [munchiesItems]);
+  const filtered = useMemo(() => {
+    let items = [...catalog];
 
-  const handleViewAll = useCallback((cat: string) => {
-    setActiveCategory(cat);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, []);
-
-  const handleBrandViewAll = useCallback((brand: string) => {
-    setActiveBrand(brand);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, []);
-
-  // Food: filter by category
-  const filteredFood = useMemo(() => {
-    if (activeCategory === "all") return foodItems;
-    return foodItems.filter(i => (i.category || "").toLowerCase() === activeCategory);
-  }, [activeCategory, foodItems]);
-
-  // Food: by category for sections view
-  const foodByCategory = useMemo(() => {
-    const PRIORITY = ["women", "men", "accessories", "footwear", "coffee", "snacks", "meals", "drinks", "desserts"];
-    const allCats = foodCategories.filter(c => c !== "all");
-    const ordered = [...PRIORITY.filter(c => allCats.includes(c)), ...allCats.filter(c => !PRIORITY.includes(c))];
-    return ordered.map(cat => ({
-      cat,
-      items: foodItems.filter(i => (i.category || "").toLowerCase() === cat),
-    })).filter(g => g.items.length > 0);
-  }, [foodItems, foodCategories]);
-
-  // Munchies: filter by brand
-  const filteredMunchies = useMemo(() => {
-    if (activeBrand === "all" && activeCategory === "all") return munchiesItems;
-    let items = munchiesItems;
-    if (activeBrand !== "all") items = items.filter(i => (i.brand || "") === activeBrand);
-    if (activeCategory !== "all") items = items.filter(i => (i.category || "").toLowerCase() === activeCategory);
-    return items;
-  }, [activeBrand, activeCategory, munchiesItems]);
-
-  // Munchies: grouped by brand for "all" view
-  const munchiesByBrand = useMemo(() => {
-    const brands = Array.from(new Set(munchiesItems.map(i => i.brand || "").filter(Boolean)));
-
-    if (brands.length > 0) {
-      const groups = brands.map(brand => ({
-        brand,
-        items: munchiesItems.filter(i => i.brand === brand),
-      }));
-      // Add items without a brand to an "Other" section
-      const noBrandItems = munchiesItems.filter(i => !i.brand);
-      if (noBrandItems.length > 0) {
-        groups.push({ brand: "Other", items: noBrandItems });
-      }
-      return groups.filter(g => g.items.length > 0);
+    if (effectiveCategory !== "all") {
+      items = items.filter((i) => (i.category || "").toLowerCase() === effectiveCategory);
     }
 
-    // Fallback: group by category if no brands are defined at all
-    const cats = Array.from(new Set(munchiesItems.map(i => i.category || "").filter(Boolean)));
-    return cats.map(cat => ({
-      brand: cat.charAt(0).toUpperCase() + cat.slice(1),
-      items: munchiesItems.filter(i => i.category === cat),
-    })).filter(g => g.items.length > 0);
-  }, [munchiesItems]);
+    if (isSearching) {
+      const q = searchQuery.toLowerCase().trim();
+      items = items.filter(
+        (i) =>
+          i.name?.toLowerCase().includes(q) ||
+          i.description?.toLowerCase().includes(q) ||
+          i.category?.toLowerCase().includes(q) ||
+          i.brand?.toLowerCase().includes(q) ||
+          i.tags?.some((t: string) => t.toLowerCase().includes(q))
+      );
+    }
 
-  const showFoodSections = world === "food" && activeCategory === "all";
-  const showMunchiesBrandSections = world === "munchies" && activeBrand === "all" && activeCategory === "all";
+    switch (sort) {
+      case "price-low":
+        return items.sort((a, b) => a.price - b.price);
+      case "price-high":
+        return items.sort((a, b) => b.price - a.price);
+      case "newest":
+        return items.sort(
+          (a, b) => (Date.parse(b.createdAt || "") || 0) - (Date.parse(a.createdAt || "") || 0)
+        );
+      default:
+        return items;
+    }
+  }, [catalog, effectiveCategory, isSearching, searchQuery, sort]);
+
+  const heading = isSearching
+    ? `Results for “${searchQuery.trim()}”`
+    : effectiveCategory === "all"
+    ? "Catalog Release"
+    : `${labelFor(effectiveCategory)} Collection`;
 
   return (
-    <>
-      <style dangerouslySetInnerHTML={{
-        __html: `
-        .hscroll::-webkit-scrollbar { display: none; }
-        /* ── Horizontal scroll strip ── */
-        .hsr-grid {
+    <div className="kl-page shop-page">
+      <style>{`
+        .shop-head {
+          padding: clamp(30px, 5vw, 56px) 0 clamp(20px, 3vw, 30px);
+          border-bottom: 1px solid var(--kl-line-soft);
+        }
+        .shop-head h1 {
+          font-family: "Outfit", sans-serif;
+          font-size: clamp(2rem, 6vw, 4.4rem);
+          font-weight: 900;
+          letter-spacing: -0.05em;
+          line-height: 0.92;
+          text-transform: uppercase;
+          margin: 0;
+          color: var(--kl-text);
+          word-break: break-word;
+        }
+        .shop-head-meta {
           display: flex;
-          gap: 12px;
-          overflow-x: auto;
-          padding-bottom: 8px;
-          -webkit-overflow-scrolling: touch;
-          scrollbar-width: none;
-          ms-overflow-style: none;
+          align-items: center;
+          justify-content: space-between;
+          gap: 16px;
+          margin-top: 14px;
         }
-        .hsr-grid::-webkit-scrollbar { display: none; }
-        .hsr-grid > div {
-          flex-shrink: 0;
-          width: 150px;
-        }
-        @media (min-width: 640px) {
-          .hsr-grid > div { width: 175px; }
-        }
-        .food-grid-filtered {
-          display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          gap: 12px;
-        }
-        @media (min-width: 640px) {
-          .food-grid-filtered { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; }
+        .shop-count {
+          font-size: 0.64rem;
+          letter-spacing: 0.16em;
+          text-transform: uppercase;
+          color: var(--kl-muted);
+          font-weight: 600;
         }
 
-        /* ── World Toggle ── */
-        .world-toggle-wrap {
+        .shop-stats {
           display: flex;
-          background: #F1F5F9;
-          border-radius: 12px;
-          padding: 4px;
-          gap: 4px;
+          flex-wrap: wrap;
+          gap: 0;
+          border: 1px solid var(--kl-line);
         }
-        .world-toggle-btn {
-          flex: 1;
+
+        .shop-stats > div {
+          min-width: 130px;
+          padding: 16px 20px;
+          border-right: 1px solid var(--kl-line);
+        }
+
+        .shop-stats > div:last-child { border-right: 0; }
+
+        .shop-stat-label {
+          display: block;
+          margin-bottom: 5px;
+          font-size: 0.54rem;
+          font-weight: 700;
+          letter-spacing: 0.18em;
+          text-transform: uppercase;
+          color: var(--kl-muted);
+        }
+
+        .shop-stats strong {
+          display: block;
+          font-family: "Outfit", sans-serif;
+          font-size: 1.35rem;
+          font-weight: 900;
+          letter-spacing: -0.04em;
+          text-transform: uppercase;
+          color: var(--kl-text);
+          line-height: 1;
+        }
+
+        .shop-controls {
+          position: sticky;
+          top: 64px;
+          z-index: 90;
+          background: rgba(8, 8, 8, 0.94);
+          backdrop-filter: blur(16px);
+          -webkit-backdrop-filter: blur(16px);
+          border-bottom: 1px solid var(--kl-line);
+        }
+        .shop-controls-inner {
+          display: flex;
+          align-items: center;
+          gap: 14px;
+          padding: 12px 0;
+        }
+
+        .shop-search {
+          position: relative;
+          flex: 0 0 clamp(96px, 14vw, 140px);
+          min-width: 96px;
+        }
+        .shop-search svg {
+          position: absolute;
+          left: 13px;
+          top: 50%;
+          transform: translateY(-50%);
+          color: var(--kl-muted);
+          pointer-events: none;
+        }
+        .shop-search input {
+          width: 100%;
+          height: 40px;
+          padding: 0 36px 0 38px;
+          border-radius: 99px;
+          border: 1px solid var(--kl-line);
+          background: transparent;
+          color: var(--kl-text);
+          font-family: inherit;
+          font-size: 0.8rem;
+          outline: none;
+          transition: border-color 0.2s ease;
+        }
+        .shop-search input::placeholder { color: #6E6E6A; }
+        .shop-search input:focus { border-color: rgba(255, 255, 255, 0.5); }
+        .shop-search-clear {
+          position: absolute;
+          right: 8px;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 26px;
+          height: 26px;
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 6px;
-          padding: 10px 16px;
-          border-radius: 9px;
-          border: none;
+          border: 0;
+          border-radius: 50%;
+          background: rgba(255, 255, 255, 0.1);
+          color: var(--kl-text);
           cursor: pointer;
-          font-family: 'Outfit', sans-serif;
-          font-size: 0.85rem;
-          font-weight: 700;
-          transition: all 0.2s;
-          white-space: nowrap;
         }
-        .world-toggle-btn.active {
-          background: #FFFFFF;
-          color: #0F172A;
-          box-shadow: 0 1px 6px rgba(0,0,0,0.12);
-        }
-        .world-toggle-btn:not(.active) {
-          background: transparent;
-          color: #94A3B8;
-        }
-        /* Brand pill */
-        .brand-pill {
-          display: inline-flex;
+
+        .shop-cats {
+          display: flex;
           align-items: center;
-          gap: 6px;
-          padding: 6px 14px;
-          border-radius: 999px;
-          font-size: 0.8rem;
-          font-weight: 700;
-          border: 1.5px solid #E2E8F0;
-          background: white;
-          color: #475569;
+          gap: 7px;
+          overflow-x: auto;
+          scrollbar-width: none;
+          -ms-overflow-style: none;
+          flex: 1;
+          min-width: 0;
+        }
+        .shop-cats::-webkit-scrollbar { display: none; }
+
+        .shop-chip {
+          flex-shrink: 0;
+          border: 1px solid var(--kl-line);
+          background: transparent;
+          color: var(--kl-muted);
+          border-radius: 4px;
+          padding: 10px 14px;
+          font-family: inherit;
+          font-size: 0.6rem;
+          font-weight: 800;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
           cursor: pointer;
           white-space: nowrap;
-          transition: all 0.15s;
-          font-family: 'Outfit', sans-serif;
+          transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
         }
-        .brand-pill.active {
-          background: #0F172A;
-          color: white;
-          border-color: #0F172A;
+        .shop-chip:hover { color: var(--kl-text); border-color: rgba(255, 255, 255, 0.4); }
+        .shop-chip.active {
+          background: var(--kl-text);
+          color: var(--kl-bg);
+          border-color: var(--kl-text);
         }
-        /* Munchies empty state */
-        .munchies-empty {
+
+        .shop-sort {
+          flex-shrink: 0;
+          height: 40px;
+          padding: 0 32px 0 14px;
+          border-radius: 99px;
+          border: 1px solid var(--kl-line);
+          background: #0A0A0A;
+          color: var(--kl-text);
+          font-family: inherit;
+          font-size: 0.62rem;
+          font-weight: 700;
+          letter-spacing: 0.06em;
+          cursor: pointer;
+          outline: none;
+          appearance: none;
+          -webkit-appearance: none;
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%239A9A96' stroke-width='1.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+          background-repeat: no-repeat;
+          background-position: right 14px center;
+        }
+
+        .shop-body {
+          padding: clamp(20px, 3vw, 34px) 0 clamp(60px, 8vw, 100px);
+        }
+
+        .shop-skel {
+          aspect-ratio: 3 / 4;
+          background: linear-gradient(90deg, #141414 25%, #1D1D1D 50%, #141414 75%);
+          background-size: 200% 100%;
+          animation: shimmer 1.5s infinite linear;
+        }
+
+        .shop-empty {
           text-align: center;
-          padding: 80px 24px;
+          padding: clamp(60px, 12vw, 120px) 20px;
+          color: var(--kl-muted);
         }
-        @media (min-width: 769px) { .mobile-only-banner { display: none !important; } }
-      ` }} />
+        .shop-empty h3 {
+          font-family: "Outfit", sans-serif;
+          color: var(--kl-text);
+          text-transform: uppercase;
+          letter-spacing: -0.03em;
+          font-size: 1.3rem;
+          margin: 0 0 8px;
+        }
+        .shop-empty p { font-size: 0.85rem; margin: 0 0 22px; }
+        .shop-empty button {
+          border: 1px solid var(--kl-line);
+          background: transparent;
+          color: var(--kl-text);
+          border-radius: 99px;
+          padding: 12px 26px;
+          font-family: inherit;
+          font-size: 0.6rem;
+          font-weight: 700;
+          letter-spacing: 0.16em;
+          text-transform: uppercase;
+          cursor: pointer;
+        }
+        .shop-empty button:hover { background: var(--kl-text); color: var(--kl-bg); }
 
-      {/* ─── PAGE HEADER ─── */}
-      {/* <div className="otw-page-header">
-        <div className="otw-container">
-          <h1 style={{ fontSize: "1.8rem", fontWeight: 900, marginBottom: "6px" }}>
-            {world === "food" ? "Our Menu" : "Munchies & More"}
-          </h1>
-          <p style={{ opacity: 0.85, fontSize: "0.9rem" }}>
-            {world === "food" ? "Fresh campus food, curated daily." : "Snacks, drinks & everyday cravings."}
-          </p>
+        @media (max-width: 860px) {
+          .shop-head-meta { align-items: stretch; flex-direction: column; }
+          .shop-controls-inner { flex-wrap: wrap; gap: 8px; }
+          .shop-search { flex: 1 1 100%; order: 1; }
+          .shop-cats { order: 3; flex-basis: 100%; }
+          .shop-sort { order: 2; margin-left: auto; }
+        }
+        @media (max-width: 480px) {
+          .shop-controls { top: 58px; }
+          .shop-sort { font-size: 0.56rem; padding-right: 30px; }
+        }
+      `}</style>
+
+      <section className="shop-head">
+        <div className="kl-container">
+          <span className="kl-eyebrow">// Drop archive 04</span>
+          <h1>{heading}</h1>
+          <div className="shop-head-meta">
+            <div className="shop-stats">
+              <div>
+                <span className="shop-stat-label">Stock status</span>
+                <strong>{filtered.length > 0 ? "Limited" : "Waiting"}</strong>
+              </div>
+              <div>
+                <span className="shop-stat-label">Dispatch time</span>
+                <strong>24 hours</strong>
+              </div>
+            </div>
+            <span className="shop-count">
+              {isLoading
+                ? "Loading pieces…"
+                : `Showing ${filtered.length} of ${catalog.length}`}
+            </span>
+          </div>
         </div>
-      </div> */}
+      </section>
 
-      {/* ─── WORLD TOGGLE + CATEGORY FILTERS ─── */}
-      <div style={{
-        position: "sticky", top: "60px", zIndex: 100,
-        background: "rgba(255,255,255,0.97)", backdropFilter: "blur(12px)",
-        borderBottom: "1px solid #f0f0f0",
-      }}>
-        <div className="otw-container" style={{ padding: "10px 16px" }}>
-          {/* Search Bar Input */}
-          <div style={{ position: "relative", marginBottom: 10 }}>
-            <Search size={16} style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "#94A3B8", pointerEvents: "none" }} />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-              placeholder="Search tees, denim, dresses, brands..."
-              style={{
-                width: "100%",
-                padding: "9px 38px 9px 38px",
-                borderRadius: 10,
-                border: "1.5px solid #E2E8F0",
-                background: "#F8FAFC",
-                fontSize: "0.85rem",
-                fontWeight: 600,
-                outline: "none",
-                boxSizing: "border-box",
-                color: "#0F172A",
-              }}
-            />
-            {searchQuery && (
+      <div className="shop-controls">
+        <div className="kl-container">
+          <div className="shop-controls-inner">
+            <div className="shop-search">
+              <Search size={15} />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search pieces"
+                aria-label="Search pieces"
+              />
+              {searchQuery && (
+                <button
+                  className="shop-search-clear"
+                  onClick={() => setSearchQuery("")}
+                  aria-label="Clear search"
+                >
+                  <X size={13} />
+                </button>
+              )}
+            </div>
+
+            <div className="shop-cats">
               <button
-                onClick={() => setSearchQuery("")}
-                style={{
-                  position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)",
-                  background: "none", border: "none", cursor: "pointer", color: "#94A3B8"
-                }}
+                key="all"
+                className={`shop-chip${effectiveCategory === "all" ? " active" : ""}`}
+                onClick={() => setActiveCategory("all")}
               >
-                <X size={15} />
+                All [{catalog.length}]
               </button>
-            )}
-          </div>
-
-          {/* World toggle */}
-          <div className="world-toggle-wrap" style={{ marginBottom: 10 }}>
-            <button
-              className={`world-toggle-btn ${world === "food" ? "active" : ""}`}
-              onClick={() => handleWorldSwitch("food")}
-            >
-              ✦ Apparel
-            </button>
-            <button
-              className={`world-toggle-btn ${world === "munchies" ? "active" : ""}`}
-              onClick={() => handleWorldSwitch("munchies")}
-            >
-              👜 Accessories
-            </button>
-          </div>
-
-          {/* Sub-filters row */}
-          {world === "food" && (
-            <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 6, scrollbarWidth: "none" }}>
-              {foodCategories.map(cat => (
+              {categories.map((cat) => (
                 <button
                   key={cat}
-                  id={`filter-${cat}`}
+                  className={`shop-chip${effectiveCategory === cat ? " active" : ""}`}
                   onClick={() => setActiveCategory(cat)}
-                  className={`cat-btn ${activeCategory === cat ? "active" : ""}`}
                 >
-                  {FOOD_CAT_EMOJI[cat] || "✨"} {cat === "all" ? "All" : CatLabel(cat)}
+                  {labelFor(cat)} [{categoryCounts.get(cat) || 0}]
                 </button>
               ))}
             </div>
-          )}
 
-          {world === "munchies" && munchiesBrands.length > 1 && (
-            <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 6, scrollbarWidth: "none" }}>
-              {munchiesBrands.map(b => (
-                <button
-                  key={b}
-                  onClick={() => { setActiveBrand(b); setActiveCategory("all"); }}
-                  className={`brand-pill ${activeBrand === b ? "active" : ""}`}
-                >
-                  {b === "all" ? "All Brands" : b}
-                </button>
+            <select
+              className="shop-sort"
+              value={sort}
+              onChange={(e) => setSort(e.target.value as SortKey)}
+              aria-label="Sort pieces"
+            >
+              {SORT_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value} style={{ background: "#0A0A0A" }}>
+                  {opt.label}
+                </option>
               ))}
-              {/* Also show categories if filtering by a brand */}
-              {activeBrand !== "all" && munchiesCategories.filter(c => c !== "all").map(cat => (
-                <button
-                  key={cat}
-                  onClick={() => setActiveCategory(cat === activeCategory ? "all" : cat)}
-                  className={`cat-btn ${activeCategory === cat ? "active" : ""}`}
-                  style={{ fontSize: "0.75rem" }}
-                >
-                  {CatLabel(cat)}
-                </button>
-              ))}
-            </div>
-          )}
+            </select>
+          </div>
         </div>
       </div>
 
-      {/* ─── CONTENT ─── */}
-      <div style={{ background: "#F8FAFF", minHeight: "60vh" }}>
-        <div className="otw-container" style={{ padding: "24px 16px" }}>
-
-          {loading ? (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 12 }}>
-              {[1, 2, 3, 4].map(i => (
-                <div key={i} style={{
-                  height: 240, borderRadius: 16, background: "#E2E8F0",
-                  backgroundImage: "linear-gradient(90deg, #E2E8F0 25%, #F1F5F9 50%, #E2E8F0 75%)",
-                  backgroundSize: "200% 100%", animation: "shimmer 1.5s infinite"
-                }} />
+      <div className="shop-body">
+        <div className="kl-container">
+          {isLoading ? (
+            <div className="kl-grid">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} className="shop-skel" />
               ))}
             </div>
-          ) : isSearching ? (
-            /* ─ SEARCH RESULTS VIEW ─ */
-            <div style={{ marginBottom: 32 }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-                <div>
-                  <h2 style={{ fontSize: "1.15rem", fontWeight: 900, color: "var(--text-dark)", margin: 0 }}>
-                    Search Results for "{searchQuery}"
-                  </h2>
-                  <div style={{ fontSize: "0.8rem", color: "#64748B", marginTop: 2 }}>
-                    Found {searchResults.length} matching item{searchResults.length !== 1 ? "s" : ""}
-                  </div>
-                </div>
-                <button
-                  onClick={() => setSearchQuery("")}
-                  style={{
-                    background: "rgba(1, 53, 251, 0.08)", border: "none", color: "var(--primary)",
-                    padding: "6px 12px", borderRadius: 8, fontSize: "0.78rem", fontWeight: 800, cursor: "pointer"
-                  }}
-                >
-                  Clear Search ✕
-                </button>
-              </div>
-
-              {searchResults.length > 0 ? (
-                <div className="food-grid-filtered">
-                  {searchResults.map(item => (
-                    <div key={item.id}>
-                      <FoodCard
-                        item={item}
-                        layout="vertical"
-                        cartItem={cart.find(c => c.item.id === item.id)}
-                        onAdd={addToCart}
-                        onUpdateQuantity={updateQuantity}
-                      />
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div style={{ textAlign: "center", padding: "60px 20px" }}>
-                  <div style={{ fontSize: "2.8rem", marginBottom: 12 }}>🔍</div>
-                  <div style={{ fontWeight: 800, fontSize: "1.1rem", color: "#0F172A" }}>No items matching "{searchQuery}"</div>
-                  <p style={{ color: "#64748B", fontSize: "0.85rem", marginTop: 4 }}>Try searching with a different keyword</p>
-                </div>
-              )}
+          ) : filtered.length > 0 ? (
+            <div className="kl-grid">
+              {filtered.map((item) => (
+                <FoodCard
+                  key={item.id}
+                  item={item}
+                  cartItem={cart.find((c) => c.item.id === item.id)}
+                  onAdd={addToCart}
+                  onUpdateQuantity={updateQuantity}
+                />
+              ))}
             </div>
-          ) : world === "food" ? (
-            /* ─ FOOD WORLD ─ */
-            showFoodSections ? (
-              <>
-                <div style={{ borderTop: "2px solid rgba(1,53,251,0.08)", margin: "4px 0 28px", position: "relative" }}>
-                  <span style={{
-                    position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)",
-                    background: "#F8FAFF", padding: "0 12px",
-                    fontSize: "0.72rem", fontWeight: 700, color: "var(--text-muted)", letterSpacing: "0.08em", textTransform: "uppercase",
-                  }}>Explore by Category</span>
-                </div>
-                {foodByCategory.map(({ cat, items }) => (
-                  <HScrollRow
-                    key={cat}
-                    items={items}
-                    label={CatLabel(cat)}
-                    emoji={FOOD_CAT_EMOJI[cat] || "✨"}
-                    viewAllCategory={cat}
-                    layout={menuLayout}
-                    cart={cart}
-                    onAdd={addToCart}
-                    onUpdateQuantity={updateQuantity}
-                    onViewAll={handleViewAll}
-                  />
-                ))}
-              </>
-            ) : (
-              <div>
-                <div style={{ marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
-                  <span style={{ fontSize: "1rem", fontWeight: 800, color: "var(--text-dark)" }}>
-                    {FOOD_CAT_EMOJI[activeCategory] || "✨"} {CatLabel(activeCategory)}
-                  </span>
-                  <span style={{ fontSize: "0.78rem", color: "var(--text-muted)", fontWeight: 600, background: "white", padding: "3px 10px", borderRadius: 999, border: "1px solid #E5E7EB" }}>
-                    {filteredFood.length} item{filteredFood.length !== 1 ? "s" : ""}
-                  </span>
-                </div>
-                {filteredFood.length === 0 ? (
-                  <div style={{ textAlign: "center", padding: "80px 24px" }}>
-                    <div style={{ fontSize: "3rem", marginBottom: 16 }}>🔍</div>
-                    <h3 style={{ fontWeight: 700, marginBottom: 8 }}>No items found</h3>
-                  </div>
-                ) : (
-                  <div className="food-grid-filtered">
-                    {filteredFood.map(item => (
-                      <FoodCard
-                        key={item.id}
-                        item={item}
-                        layout="vertical"
-                        cartItem={cart.find(c => c.item.id === item.id)}
-                        onAdd={addToCart}
-                        onUpdateQuantity={updateQuantity}
-                      />
-                    ))}
-                  </div>
-                )}
-              </div>
-            )
           ) : (
-            /* ─ MUNCHIES WORLD ─ */
-            munchiesItems.length === 0 ? (
-              <div className="munchies-empty">
-                <div style={{ fontSize: "3rem", marginBottom: 16 }}>🍿</div>
-                <h3 style={{ fontWeight: 800, fontSize: "1.2rem", color: "#0F172A", marginBottom: 8 }}>
-                  Coming Very Soon!
-                </h3>
-                <p style={{ color: "#64748B", fontSize: "0.95rem", maxWidth: 280, margin: "0 auto 24px" }}>
-                  Bags, extras and finishing pieces from the next drop.
-                </p>
-                <button
-                  onClick={() => handleWorldSwitch("food")}
-                  style={{ background: "#0135FB", color: "white", border: "none", borderRadius: 12, padding: "12px 28px", fontWeight: 700, fontSize: "0.95rem", cursor: "pointer" }}
-                >
-                  Browse apparel
-                </button>
-              </div>
-            ) : showMunchiesBrandSections ? (
-              <>
-                <div style={{ borderTop: "2px solid rgba(1,53,251,0.08)", margin: "4px 0 28px", position: "relative" }}>
-                  <span style={{
-                    position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)",
-                    background: "#F8FAFF", padding: "0 12px",
-                    fontSize: "0.72rem", fontWeight: 700, color: "var(--text-muted)", letterSpacing: "0.08em", textTransform: "uppercase",
-                  }}>Browse by Brand</span>
-                </div>
-                {munchiesByBrand.map(({ brand, items }) => (
-                  <BrandRow
-                    key={brand}
-                    brand={brand}
-                    items={items}
-                    cart={cart}
-                    onAdd={addToCart}
-                    onUpdateQuantity={updateQuantity}
-                    onViewAll={handleBrandViewAll}
-                  />
-                ))}
-              </>
-            ) : (
-              <div>
-                <div style={{ marginBottom: 16, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                  {activeBrand !== "all" && (
-                    <span style={{ fontSize: "1rem", fontWeight: 800, color: "#0F172A" }}>{activeBrand}</span>
-                  )}
-                  <span style={{ fontSize: "0.78rem", color: "var(--text-muted)", fontWeight: 600, background: "white", padding: "3px 10px", borderRadius: 999, border: "1px solid #E5E7EB" }}>
-                    {filteredMunchies.length} item{filteredMunchies.length !== 1 ? "s" : ""}
-                  </span>
-                  <button
-                    onClick={() => { setActiveBrand("all"); setActiveCategory("all"); }}
-                    style={{ fontSize: "0.75rem", fontWeight: 700, color: "#0135FB", background: "none", border: "none", cursor: "pointer", textDecoration: "underline" }}
-                  >
-                    Clear filters
-                  </button>
-                </div>
-                {filteredMunchies.length === 0 ? (
-                  <div style={{ textAlign: "center", padding: "60px 24px" }}>
-                    <div style={{ fontSize: "2.5rem", marginBottom: 12 }}>🔍</div>
-                    <p style={{ color: "#64748B" }}>No products found.</p>
-                  </div>
-                ) : (
-                  <div className="food-grid-filtered">
-                    {filteredMunchies.map(item => (
-                      <FoodCard
-                        key={item.id}
-                        item={item}
-                        layout="vertical"
-                        cartItem={cart.find(c => c.item.id === item.id)}
-                        onAdd={addToCart}
-                        onUpdateQuantity={updateQuantity}
-                      />
-                    ))}
-                  </div>
-                )}
-              </div>
-            )
+            <div className="shop-empty">
+              <h3>Nothing here yet</h3>
+              <p>
+                {isSearching
+                  ? `No pieces match “${searchQuery.trim()}”.`
+                  : "This edit is still being curated. Try another category."}
+              </p>
+              <button
+                onClick={() => {
+                  setSearchQuery("");
+                  setActiveCategory("all");
+                  setSort("featured");
+                }}
+              >
+                Reset filters
+              </button>
+            </div>
           )}
         </div>
       </div>
 
       <Footer />
-    </>
+    </div>
+  );
+}
+
+function MenuRoute() {
+  const searchParams = useSearchParams();
+  const category = (searchParams.get("category") || "").toLowerCase();
+  const query = searchParams.get("q") || "";
+  return (
+    <MenuContent
+      key={`${category}|${query}`}
+      initialCategory={category}
+      initialQuery={query}
+    />
   );
 }
 
 export default function MenuPage() {
   return (
-    <Suspense fallback={<div style={{ padding: "60px 20px", textAlign: "center", color: "#64748B" }}>Loading menu...</div>}>
-      <MenuContent />
+    <Suspense fallback={<div style={{ minHeight: "70vh", background: "#080808" }} />}>
+      <MenuRoute />
     </Suspense>
   );
 }

@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import PolicyLayout from "@/components/PolicyLayout";
 
 export const metadata: Metadata = {
-  title: "Shipping Policy — KLOYH",
-  description: "Shipping Policy for KLOYH.",
+  title: "Shipping Policy — ORBT",
+  description: "Shipping Policy for ORBT.",
 };
 
 export default function DeliveryPolicyPage() {
@@ -14,7 +14,7 @@ export default function DeliveryPolicyPage() {
       sections={[
         {
           heading: "1. Service Area",
-          content: `KLOYH ships fashion orders across India to a complete residential or office address (house/flat, street, city, state, and 6-digit PIN).`,
+          content: `ORBT ships fashion orders across India to a complete residential or office address (house/flat, street, city, state, and 6-digit PIN).`,
         },
         {
           heading: "2. Timelines",

@@ -81,19 +81,19 @@ export default function AuthPage() {
         <div style={{ textAlign: "center", marginBottom: "40px" }}>
           <div style={{
             width: 72, height: 72, borderRadius: "20px",
-            background: "linear-gradient(135deg, #0055ff, #0033cc)", 
+            background: "#F4F4F2",
             display: "flex", alignItems: "center", justifyContent: "center",
-            margin: "0 auto 20px", boxShadow: "0 8px 24px rgba(0,85,255,0.4)",
+            margin: "0 auto 20px",
           }}>
             <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="5" r="2.5" fill="white"/>
-              <path d="M12 8.5 L9 12 L12 11 L15 12 Z" fill="white"/>
-              <path d="M12 11 L10 16 M12 11 L14 16" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
-              <path d="M10 16 L8.5 20 M14 16 L15.5 20" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+              <circle cx="12" cy="5" r="2.5" fill="#0A0A0A"/>
+              <path d="M12 8.5 L9 12 L12 11 L15 12 Z" fill="#0A0A0A"/>
+              <path d="M12 11 L10 16 M12 11 L14 16" stroke="#0A0A0A" strokeWidth="1.5" strokeLinecap="round"/>
+              <path d="M10 16 L8.5 20 M14 16 L15.5 20" stroke="#0A0A0A" strokeWidth="1.5" strokeLinecap="round"/>
             </svg>
           </div>
-          <div style={{ fontFamily: "inherit", fontWeight: 900, fontSize: "1.8rem", color: "#fff", letterSpacing: "1px" }}>ONN D A WAY</div>
-          <div style={{ fontFamily: "inherit", fontSize: "0.8rem", color: "#a0a0a0", letterSpacing: "0.2em", fontWeight: 700, marginTop: "4px" }}>COFFEE PARTNER</div>
+          <div style={{ fontFamily: "inherit", fontWeight: 900, fontSize: "1.8rem", color: "#fff", letterSpacing: "1px" }}>ORBT</div>
+          <div style={{ fontFamily: "inherit", fontSize: "0.8rem", color: "#a0a0a0", letterSpacing: "0.2em", fontWeight: 700, marginTop: "4px" }}>CLOTHING STUDIO</div>
         </div>
 
         {/* Tabs */}
@@ -136,7 +136,7 @@ export default function AuthPage() {
               onChange={e => setUsername(e.target.value)}
               required
               style={{ width: "100%", padding: "16px", borderRadius: "12px", border: "1px solid #3f3f46", fontSize: "1rem", fontFamily: "inherit", fontWeight: 600, outline: "none", background: "#111", color: "#fff", transition: "border 0.2s" }}
-              onFocus={e => e.currentTarget.style.borderColor = "#0055ff"}
+              onFocus={e => e.currentTarget.style.borderColor = "#F4F4F2"}
               onBlur={e => e.currentTarget.style.borderColor = "#3f3f46"}
             />
           </div>
@@ -149,7 +149,7 @@ export default function AuthPage() {
               onChange={e => setPassword(e.target.value)}
               required
               style={{ width: "100%", padding: "16px", borderRadius: "12px", border: "1px solid #3f3f46", fontSize: "1rem", fontFamily: "inherit", fontWeight: 600, outline: "none", background: "#111", color: "#fff", transition: "border 0.2s" }}
-              onFocus={e => e.currentTarget.style.borderColor = "#0055ff"}
+              onFocus={e => e.currentTarget.style.borderColor = "#F4F4F2"}
               onBlur={e => e.currentTarget.style.borderColor = "#3f3f46"}
             />
           </div>
@@ -159,10 +159,10 @@ export default function AuthPage() {
             disabled={submitting}
             style={{
               width: "100%", padding: "18px", borderRadius: "12px", marginTop: "8px",
-              border: "none", background: "linear-gradient(135deg, #0055ff, #0033cc)", color: "white",
+              border: "none", background: "#F4F4F2", color: "#0A0A0A",
               fontFamily: "inherit", fontWeight: 900, fontSize: "1.1rem",
               textTransform: "uppercase", letterSpacing: "1px", cursor: "pointer",
-              boxShadow: "0 8px 24px rgba(0,85,255,0.3)", transition: "all 0.2s",
+              transition: "all 0.2s",
               display: "flex", alignItems: "center", justifyContent: "center", gap: "10px",
               opacity: submitting ? 0.7 : 1,
             }}

@@ -26,18 +26,18 @@ const siteUrl = process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `ht
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "KLOYH | Contemporary clothing, shipped across India",
-    template: "%s | KLOYH",
+    default: "ORBT | Contemporary clothing, shipped across India",
+    template: "%s | ORBT",
   },
   description:
-    "KLOYH is a fashion label for everyday luxury — tees, denim, dresses, and accessories with pan-India shipping, easy returns, and secure checkout.",
-  applicationName: "KLOYH",
-  authors: [{ name: "KLOYH", url: siteUrl }],
+    "ORBT is a fashion label for everyday luxury — tees, denim, dresses, and accessories with pan-India shipping, easy returns, and secure checkout.",
+  applicationName: "ORBT",
+  authors: [{ name: "ORBT", url: siteUrl }],
   generator: "Next.js",
   keywords: [
-    "kloyh",
-    "kloyh clothing",
-    "kloyh fashion",
+    "orbt",
+    "orbt clothing",
+    "orbt fashion",
     "online clothing store india",
     "womens wear",
     "mens wear",
@@ -46,23 +46,23 @@ export const metadata: Metadata = {
     "tees denim dresses",
     "buy clothes online",
   ],
-  creator: "KLOYH",
-  publisher: "KLOYH",
+  creator: "ORBT",
+  publisher: "ORBT",
   alternates: {
     canonical: "/",
   },
   openGraph: {
-    title: "KLOYH — Clothing designed to be worn",
+    title: "ORBT — Clothing designed to be worn",
     description:
-      "Shop the latest KLOYH drop. Contemporary clothing with pan-India shipping.",
+      "Shop the latest ORBT drop. Contemporary clothing with pan-India shipping.",
     url: siteUrl,
-    siteName: "KLOYH",
+    siteName: "ORBT",
     images: [
       {
         url: "/icon-512x512.png",
         width: 512,
         height: 512,
-        alt: "KLOYH fashion",
+        alt: "ORBT fashion",
       },
     ],
     locale: "en_IN",
@@ -70,10 +70,10 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "KLOYH — Contemporary clothing",
+    title: "ORBT — Contemporary clothing",
     description: "Tees, denim, dresses and accessories. Shop the drop, ship nationwide.",
     images: ["/icon-512x512.png"],
-    creator: "@kloyh",
+    creator: "@orbt",
   },
   robots: {
     index: true,
@@ -99,14 +99,14 @@ const jsonLdData = [
     "@context": "https://schema.org",
     "@type": "WebSite",
     "@id": `${siteUrl}/#website`,
-    "name": "KLOYH",
+    "name": "ORBT",
     "alternateName": [
-      "kloyh",
-      "kloyh clothing",
-      "kloyh fashion"
+      "orbt",
+      "orbt clothing",
+      "orbt fashion"
     ],
     "url": siteUrl,
-    "description": "KLOYH – contemporary clothing and accessories with pan-India shipping.",
+    "description": "ORBT – contemporary clothing and accessories with pan-India shipping.",
     "potentialAction": {
       "@type": "SearchAction",
       "target": `${siteUrl}/?search={search_term_string}`,
@@ -117,10 +117,10 @@ const jsonLdData = [
     "@context": "https://schema.org",
     "@type": "ClothingStore",
     "@id": `${siteUrl}/#store`,
-    "name": "KLOYH",
+    "name": "ORBT",
     "alternateName": [
-      "Kloyh Clothing",
-      "Kloyh Fashion"
+      "ORBT Clothing",
+      "ORBT Fashion"
     ],
     "url": siteUrl,
     "logo": `${siteUrl}/icon-512x512.png`,
@@ -148,10 +148,10 @@ const jsonLdData = [
     "@context": "https://schema.org",
     "@type": "Organization",
     "@id": `${siteUrl}/#organization`,
-    "name": "KLOYH",
+    "name": "ORBT",
     "alternateName": [
-      "kloyh",
-      "kloyh clothing"
+      "orbt",
+      "orbt clothing"
     ],
     "url": siteUrl,
     "logo": `${siteUrl}/icon-512x512.png`
@@ -164,15 +164,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
         <link rel="apple-touch-icon" href="/icon-512x512.png" />
         <link rel="icon" href="/icon-512x512.png" type="image/png" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <meta name="apple-mobile-web-app-title" content="KLOYH" />
+        <meta name="apple-mobile-web-app-title" content="ORBT" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="theme-color" content="#0135FB" />
+        <meta name="theme-color" content="#000000" />
         <meta name="geo.region" content="IN-DL" />
         <meta name="geo.placename" content="Delhi Technological University (DTU), Shahbad Daulatpur, Bawana, Delhi 110042" />
         <meta name="geo.position" content="28.7499;77.1170" />
@@ -212,7 +212,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 borderRadius: "12px",
                 fontSize: "0.9rem",
               },
-              success: { iconTheme: { primary: "#01235F", secondary: "#FDF8F0" } },
+              success: { iconTheme: { primary: "#000000", secondary: "#FFFFFF" } },
             }}
           />
           <script

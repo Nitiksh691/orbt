@@ -113,7 +113,7 @@ export default function OnboardingModal({ onLoginClick }: { onLoginClick: () => 
               color: "white", lineHeight: 1.1,
               textTransform: "uppercase", letterSpacing: "-0.01em", marginBottom: "4px",
             }}>
-              KLOYH
+              ORBT
             </h2>
             <p style={{ color: "rgba(255,255,255,0.82)", fontSize: "0.9rem", lineHeight: 1.55 }}>
               Clothing designed to be worn.<br />Shipped across India.

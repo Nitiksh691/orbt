@@ -15,7 +15,6 @@ export default function AdminMenuPage() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const [adminWorld, setAdminWorld] = useState<"food" | "munchies">("food");
   const [approvalFilter, setApprovalFilter] = useState<"all" | "pending" | "approved" | "rejected" | "vendor">("all");
   const [approvingId, setApprovingId] = useState<string | null>(null);
 
@@ -23,7 +22,7 @@ export default function AdminMenuPage() {
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
   const [vendorsList, setVendorsList] = useState<any[]>([]);
 
-  const [form, setForm] = useState<Partial<MenuItem>>({ name: "", description: "", price: 0, originalPrice: 0, section: "", category: "coffee", world: "food", available: true, isPopular: false, isRecommended: false, isBanner: false, hasTallSize: false, isLaunchingSoon: false, searchOnly: false, image: "", customizationCategories: [], details: [], sizes: [], isConsignment: false, vendorId: null, vendorName: "" });
+  const [form, setForm] = useState<Partial<MenuItem>>({ name: "", description: "", price: 0, originalPrice: 0, section: "", category: "tees", world: "food", available: true, isPopular: false, isRecommended: false, isBanner: false, hasTallSize: false, isLaunchingSoon: false, searchOnly: false, image: "", customizationCategories: [], details: [], sizes: [], isConsignment: false, vendorId: null, vendorName: "" });
   const [uploadingImage, setUploadingImage] = useState(false);
   const [uploadingStatus, setUploadingStatus] = useState("");
 
@@ -60,7 +59,7 @@ export default function AdminMenuPage() {
       setEditingItem(null);
       setForm({
         name: "", description: "", price: 0, originalPrice: 0, section: "",
-        category: adminWorld === "munchies" ? "munchies" : "coffee", world: adminWorld,
+        category: "tees", world: "food",
         available: true, isPopular: false, isRecommended: false, isBanner: false, hasTallSize: false,
         isLaunchingSoon: false, searchOnly: false,
         image: "", orderCount: 0, sortOrder: 0, customizationCategories: [], details: [], sizes: [],
@@ -181,9 +180,8 @@ export default function AdminMenuPage() {
   const pendingCount = items.filter(i => i.approvalStatus === "pending").length;
   const vendorCount = items.filter(i => i.isConsignment).length;
 
-  // Filter by world, search, and approvalFilter
+  // Filter by search and approvalFilter
   const filtered = items
-    .filter(i => (i.world || "food") === adminWorld)
     .filter(i => {
       if (approvalFilter === "pending") return i.approvalStatus === "pending";
       if (approvalFilter === "approved") return !i.approvalStatus || i.approvalStatus === "approved";
@@ -200,11 +198,11 @@ export default function AdminMenuPage() {
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "24px", flexWrap: "wrap", gap: "16px" }}>
         <div>
-          <h1 style={{ fontSize: "2rem", fontWeight: 900, color: "var(--text-dark)", marginBottom: "8px" }}>Menu Management</h1>
-          <p style={{ color: "var(--text-muted)" }}>Add, edit, or remove items from the campus menu.</p>
+          <h1 style={{ fontSize: "2rem", fontWeight: 900, color: "var(--text-dark)", marginBottom: "8px" }}>Product Management</h1>
+          <p style={{ color: "var(--text-muted)" }}>Add, edit, or remove clothing from the ORBT shop.</p>
         </div>
         <button onClick={() => handleOpenEdit(null)} style={{ background: "#0055ff", color: "#fff", border: "none", padding: "12px 20px", borderRadius: "8px", fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: "8px" }}>
-          <Plus size={18} /> Add New Item
+          <Plus size={18} /> Add Product
         </button>
       </div>
 
@@ -247,36 +245,8 @@ export default function AdminMenuPage() {
         </div>
       )}
 
-      {/* ── World & Approval Filters Bar ── */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12, marginBottom: 20 }}>
-        {/* World Toggle */}
-        <div style={{ display: "flex", background: "#F1F5F9", borderRadius: 12, padding: 4, gap: 4, minWidth: 320 }}>
-          <button
-            onClick={() => setAdminWorld("food")}
-            style={{
-              flex: 1, padding: "10px 16px", borderRadius: 9, border: "none", cursor: "pointer",
-              fontFamily: "inherit", fontWeight: 700, fontSize: "0.88rem", transition: "all 0.18s",
-              background: adminWorld === "food" ? "#FFFFFF" : "transparent",
-              color: adminWorld === "food" ? "#0F172A" : "#94A3B8",
-              boxShadow: adminWorld === "food" ? "0 1px 6px rgba(0,0,0,0.1)" : "none",
-            }}
-          >
-            ☕ Coffee &amp; Food
-          </button>
-          <button
-            onClick={() => setAdminWorld("munchies")}
-            style={{
-              flex: 1, padding: "10px 16px", borderRadius: 9, border: "none", cursor: "pointer",
-              fontFamily: "inherit", fontWeight: 700, fontSize: "0.88rem", transition: "all 0.18s",
-              background: adminWorld === "munchies" ? "#FFFFFF" : "transparent",
-              color: adminWorld === "munchies" ? "#0F172A" : "#94A3B8",
-              boxShadow: adminWorld === "munchies" ? "0 1px 6px rgba(0,0,0,0.1)" : "none",
-            }}
-          >
-            🛒 Grocery &amp; Munchies
-          </button>
-        </div>
-
+      {/* ── Approval Filters Bar ── */}
+      <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", flexWrap: "wrap", gap: 12, marginBottom: 20 }}>
         {/* Approval Status Filter Chips */}
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
           {([
@@ -311,7 +281,7 @@ export default function AdminMenuPage() {
           <Search size={18} style={{ position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)", color: "var(--text-muted)" }} />
           <input
             type="text"
-            placeholder={`Search ${adminWorld === "food" ? "food & coffee" : "grocery & munchies"} items...`}
+            placeholder="Search products..."
             style={{ background: "#ffffff", border: "1px solid #cbd5e1", color: "#0f172a", borderRadius: "8px", padding: "14px 16px 14px 48px", width: "100%", outline: "none", fontFamily: "inherit", boxSizing: "border-box" }}
             value={search}
             onChange={e => setSearch(e.target.value)}
@@ -511,7 +481,7 @@ export default function AdminMenuPage() {
           }}>
             <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--border)", background: "#e2e8f0", display: "flex" }}>
               <Dialog.Title style={{ fontSize: "1.5rem", fontWeight: 900, color: "var(--text-dark)", margin: 0 }}>
-                {editingItem ? "Edit Menu Item" : "Create New Item"}
+                {editingItem ? "Edit Product" : "Create Product"}
               </Dialog.Title>
             </div>
 
@@ -520,31 +490,6 @@ export default function AdminMenuPage() {
                 <div>
                   <label className="otw-label" style={{ display: "block", fontSize: "0.85rem", fontWeight: 700, color: "#334155", marginBottom: "8px" }}>Item Name</label>
                   <input type="text" className="otw-input" style={{ background: "#ffffff", border: "1px solid #cbd5e1", color: "#0f172a", borderRadius: "8px", padding: "14px 16px", width: "100%", outline: "none", fontFamily: "inherit", boxSizing: "border-box" }} value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} required />
-                </div>
-
-                {/* ── World Selector ── */}
-                <div>
-                  <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 700, color: "#334155", marginBottom: "8px" }}>
-                    Item belongs to
-                  </label>
-                  <div style={{ display: "flex", gap: 8 }}>
-                    {([["food", "☕ Coffee & Food"], ["munchies", "🛒 Grocery & Munchies"]] as const).map(([val, label]) => (
-                      <button
-                        key={val}
-                        type="button"
-                        onClick={() => setForm({ ...form, world: val })}
-                        style={{
-                          flex: 1, padding: "10px 14px", borderRadius: 10, fontFamily: "inherit",
-                          fontWeight: 700, fontSize: "0.85rem", cursor: "pointer", transition: "all 0.15s",
-                          border: (form.world || "food") === val ? "2px solid #0055ff" : "2px solid #e2e8f0",
-                          background: (form.world || "food") === val ? "rgba(0,85,255,0.06)" : "#ffffff",
-                          color: (form.world || "food") === val ? "#0055ff" : "#64748b",
-                        }}
-                      >
-                        {label}
-                      </button>
-                    ))}
-                  </div>
                 </div>
 
                 {/* ── Vendor / Consignment Partner Selection ── */}
@@ -574,7 +519,7 @@ export default function AdminMenuPage() {
                       fontSize: "0.9rem", fontWeight: 700, color: "#0F172A", outline: "none",
                     }}
                   >
-                    <option value="">🏠 Our Own / In-House Item (ONN DA WAY)</option>
+                    <option value="">ORBT in-house product</option>
                     {vendorsList.map(v => (
                       <option key={v._id} value={v._id}>
                         🏪 {v.name} {v.businessName ? `(${v.businessName})` : ""} · {v.revenueSharePct}% Share
@@ -583,8 +528,8 @@ export default function AdminMenuPage() {
                   </select>
                   <p style={{ fontSize: "0.74rem", color: "#15803D", margin: "6px 0 0" }}>
                     {form.isConsignment
-                      ? `This product belongs to ${form.vendorName || "an external partner"}. Its sales will be tracked separately in the Vendor Portal.`
-                      : "Standard in-house product. Revenue is retained 100% by ONN DA WAY."}
+                      ? `This product belongs to ${form.vendorName || "an external partner"}.`
+                      : "Standard ORBT in-house product."}
                   </p>
                 </div>
 
@@ -652,7 +597,7 @@ export default function AdminMenuPage() {
                       list="category-suggestions"
                       type="text"
                       style={{ background: "#ffffff", border: "2px solid #0055ff", color: "#0f172a", borderRadius: "8px", padding: "12px 16px", width: "100%", outline: "none", fontFamily: "inherit", boxSizing: "border-box", fontSize: "1rem", fontWeight: 700 }}
-                      placeholder="e.g. Coffee, Snacks, Meals…"
+                      placeholder="e.g. Tees, Hoodies, Bottoms…"
                       value={form.category || ""}
                       onChange={e => setForm({ ...form, category: e.target.value })}
                       required
@@ -831,32 +776,80 @@ export default function AdminMenuPage() {
                     </div>
                   </div>
 
-                  <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "16px", background: form.hasTallSize ? "#0d2218" : "#f8fafc", border: form.hasTallSize ? "1px solid #14532d" : "1px solid #e2e8f0", borderRadius: "12px" }}>
-                    <input type="checkbox" id="hasTallSize" checked={form.hasTallSize || false} onChange={e => setForm({ ...form, hasTallSize: e.target.checked })} style={{ width: 20, height: 20, cursor: "pointer", accentColor: "#16a34a" }} />
-                    <div style={{ display: "flex", flexDirection: "column" }}>
-                      <label htmlFor="hasTallSize" style={{ fontWeight: 700, cursor: "pointer", color: form.hasTallSize ? "#15803d" : "var(--text-dark)" }}>☕ Enable Tall Size (+₹20)</label>
-                      <span style={{ fontSize: "0.8rem", color: form.hasTallSize ? "#16a34a" : "var(--text-muted)" }}>When enabled, tapping + on this item shows a size popup: Regular (base price) or Tall (+₹20).</span>
-                    </div>
-                  </div>
                 </div>
 
-                {/* ── Beverage Details ── */}
+                {/* ── Clothing Sizes ── */}
+                <div style={{ padding: "20px", background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: "12px", marginTop: "16px" }}>
+                  <div style={{ marginBottom: "16px" }}>
+                    <h3 style={{ fontSize: "1rem", fontWeight: 800, color: "var(--text-dark)", margin: "0 0 6px" }}>Available sizes for this dress</h3>
+                    <p style={{ margin: 0, fontSize: "0.8rem", color: "var(--text-muted)" }}>
+                      Leave empty to show S, M, L and XL at the base price. Add a row only when a size
+                      needs a different price.
+                    </p>
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                    {(form.sizes?.length ? form.sizes : []).map((size, idx) => (
+                      <div key={idx} style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                        <input
+                          type="text"
+                          placeholder="Size (e.g. S)"
+                          value={size.name}
+                          onChange={e => {
+                            const next = [...(form.sizes || [])];
+                            next[idx] = { ...next[idx], name: e.target.value };
+                            setForm({ ...form, sizes: next });
+                          }}
+                          style={{ flex: 1, background: "#ffffff", border: "1px solid #cbd5e1", color: "#0f172a", borderRadius: "6px", padding: "8px 12px", outline: "none" }}
+                        />
+                        <input
+                          type="number"
+                          placeholder="Price"
+                          value={size.price || ""}
+                          min="0"
+                          onChange={e => {
+                            const next = [...(form.sizes || [])];
+                            next[idx] = { ...next[idx], price: Number(e.target.value) };
+                            setForm({ ...form, sizes: next });
+                          }}
+                          style={{ flex: 1, background: "#ffffff", border: "1px solid #cbd5e1", color: "#0f172a", borderRadius: "6px", padding: "8px 12px", outline: "none" }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setForm({ ...form, sizes: (form.sizes || []).filter((_, i) => i !== idx) })}
+                          aria-label="Remove size"
+                          style={{ background: "transparent", border: "none", color: "#ef4444", cursor: "pointer" }}
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setForm(f => ({ ...f, sizes: [...(f.sizes || []), { name: ["S", "M", "L", "XL"][(f.sizes || []).length] || "XXL", price: f.price || 0 }] }))}
+                    style={{ marginTop: "14px", background: "#e2e8f0", color: "#0f172a", border: "1px solid #cbd5e1", padding: "7px 12px", borderRadius: "6px", fontSize: "0.8rem", fontWeight: 700, cursor: "pointer" }}
+                  >
+                    + Add Size
+                  </button>
+                </div>
+
+                {/* ── Fabric & fit details ── */}
                 <div style={{ padding: "20px", background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: "12px", marginTop: "16px" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-                    <h3 style={{ fontSize: "1rem", fontWeight: 800, color: "var(--text-dark)", margin: 0 }}>Item Details (Ingredients, Quantity)</h3>
+                    <h3 style={{ fontSize: "1rem", fontWeight: 800, color: "var(--text-dark)", margin: 0 }}>Product Details (Fabric, Fit, Care)</h3>
                     <button type="button" onClick={() => setForm(f => ({ ...f, details: [...(f.details || []), { label: "", value: "" }] }))} style={{ background: "#e2e8f0", color: "#0f172a", border: "1px solid #cbd5e1", padding: "6px 12px", borderRadius: "6px", fontSize: "0.8rem", fontWeight: 700, cursor: "pointer" }}>+ Add Detail</button>
                   </div>
                   {(!form.details || form.details.length === 0) && (
-                    <div style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>No details added (e.g. Ingredients: Milk, Sugar).</div>
+                    <div style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>No details added (e.g. Fabric: 450 GSM cotton).</div>
                   )}
                   {form.details?.map((detail, idx) => (
                     <div key={idx} style={{ display: "flex", gap: "12px", marginBottom: "12px", alignItems: "center" }}>
-                      <input type="text" placeholder="Label (e.g. Ingredients)" style={{ flex: 1, background: "#ffffff", border: "1px solid #cbd5e1", color: "#0f172a", borderRadius: "6px", padding: "8px 12px", outline: "none", fontSize: "0.9rem" }} value={detail.label} onChange={e => {
+                      <input type="text" placeholder="Label (e.g. Fabric)" style={{ flex: 1, background: "#ffffff", border: "1px solid #cbd5e1", color: "#0f172a", borderRadius: "6px", padding: "8px 12px", outline: "none", fontSize: "0.9rem" }} value={detail.label} onChange={e => {
                         const newDetails = [...form.details!];
                         newDetails[idx].label = e.target.value;
                         setForm({ ...form, details: newDetails });
                       }} />
-                      <input type="text" placeholder="Value (e.g. Coffee, Milk)" style={{ flex: 2, background: "#ffffff", border: "1px solid #cbd5e1", color: "#0f172a", borderRadius: "6px", padding: "8px 12px", outline: "none", fontSize: "0.9rem" }} value={detail.value} onChange={e => {
+                      <input type="text" placeholder="Value (e.g. 450 GSM cotton)" style={{ flex: 2, background: "#ffffff", border: "1px solid #cbd5e1", color: "#0f172a", borderRadius: "6px", padding: "8px 12px", outline: "none", fontSize: "0.9rem" }} value={detail.value} onChange={e => {
                         const newDetails = [...form.details!];
                         newDetails[idx].value = e.target.value;
                         setForm({ ...form, details: newDetails });
@@ -873,18 +866,18 @@ export default function AdminMenuPage() {
                 {/* ── Customizations Section ── */}
                 <div style={{ padding: "20px", background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: "12px", marginTop: "16px" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-                    <h3 style={{ fontSize: "1rem", fontWeight: 800, color: "var(--text-dark)", margin: 0 }}>Customizations (Add-ons)</h3>
+                    <h3 style={{ fontSize: "1rem", fontWeight: 800, color: "var(--text-dark)", margin: 0 }}>Style Options</h3>
                     <button type="button" onClick={() => setForm(f => ({ ...f, customizationCategories: [...(f.customizationCategories || []), { name: "", options: [], required: false, multiple: false }] }))} style={{ background: "#e2e8f0", color: "#0f172a", border: "1px solid #cbd5e1", padding: "6px 12px", borderRadius: "6px", fontSize: "0.8rem", fontWeight: 700, cursor: "pointer" }}>+ Add Category</button>
                   </div>
 
                   {(!form.customizationCategories || form.customizationCategories.length === 0) && (
-                    <div style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>No customizations added (e.g. Milk Options, Add-ons).</div>
+                    <div style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>No style options added (e.g. Colour, Fit).</div>
                   )}
 
                   {form.customizationCategories?.map((cat, catIdx) => (
                     <div key={catIdx} style={{ background: "#ffffff", border: "1px solid #cbd5e1", borderRadius: "8px", padding: "16px", marginBottom: "16px" }}>
                       <div style={{ display: "flex", gap: "12px", marginBottom: "12px", alignItems: "center" }}>
-                        <input type="text" placeholder="Category Name (e.g. Milk)" style={{ flex: 1, background: "#ffffff", border: "1px solid #cbd5e1", color: "#0f172a", borderRadius: "6px", padding: "8px 12px", outline: "none", fontSize: "0.9rem" }} value={cat.name} onChange={e => {
+                        <input type="text" placeholder="Category Name (e.g. Colour)" style={{ flex: 1, background: "#ffffff", border: "1px solid #cbd5e1", color: "#0f172a", borderRadius: "6px", padding: "8px 12px", outline: "none", fontSize: "0.9rem" }} value={cat.name} onChange={e => {
                           const newCats = [...form.customizationCategories!];
                           newCats[catIdx].name = e.target.value;
                           setForm({ ...form, customizationCategories: newCats });
@@ -899,7 +892,7 @@ export default function AdminMenuPage() {
                       <div style={{ display: "flex", flexDirection: "column", gap: "8px", paddingLeft: "12px", borderLeft: "2px solid #e2e8f0" }}>
                         {cat.options.map((opt, optIdx) => (
                           <div key={optIdx} style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-                            <input type="text" placeholder="Option (e.g. Oat Milk)" style={{ flex: 1, background: "#ffffff", border: "1px solid #cbd5e1", color: "#0f172a", borderRadius: "6px", padding: "6px 10px", outline: "none", fontSize: "0.85rem" }} value={opt.name} onChange={e => {
+                            <input type="text" placeholder="Option (e.g. Black)" style={{ flex: 1, background: "#ffffff", border: "1px solid #cbd5e1", color: "#0f172a", borderRadius: "6px", padding: "6px 10px", outline: "none", fontSize: "0.85rem" }} value={opt.name} onChange={e => {
                               const newCats = [...form.customizationCategories!];
                               newCats[catIdx].options[optIdx].name = e.target.value;
                               setForm({ ...form, customizationCategories: newCats });

@@ -67,7 +67,7 @@ export default function OnboardingPage() {
       }
 
       await refreshProfile();
-      toast.success("Welcome to ONN D A WAY! 🎉");
+      toast.success("Welcome to ORBT!");
       router.push("/menu");
     } catch (e) {
       console.error(e);
@@ -185,7 +185,7 @@ export default function OnboardingPage() {
 
   return (
     <div style={{
-      minHeight: "100vh", background: "#F8FAFF",
+      minHeight: "100vh",
       display: "flex", alignItems: "center", justifyContent: "center",
       padding: "24px",
     }}>

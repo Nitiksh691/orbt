@@ -24,7 +24,7 @@ export default function DiscoverPage() {
     <div
       style={{
         minHeight: "100vh",
-        background: "linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%)",
+        background: "#000000",
         paddingTop: 12,
         overflow: "hidden",
       }}
@@ -78,7 +78,8 @@ export default function DiscoverPage() {
               maxWidth: 420,
               height: "clamp(460px, 65vh, 580px)",
               borderRadius: 28,
-              background: "#1a1a2e",
+              background: "#111111",
+              border: "1px solid rgba(255,255,255,0.12)",
               position: "relative",
               overflow: "hidden",
             }}
@@ -153,7 +154,7 @@ export default function DiscoverPage() {
       ) : (
         <>
           <div className="hidden md:flex flex-col items-center justify-center min-h-[50vh] text-center px-4 max-w-lg mx-auto">
-            <div className="w-20 h-20 bg-white/10 text-white rounded-full flex items-center justify-center mb-6 shadow-sm">
+            <div className="w-20 h-20 bg-white/10 border border-white/10 text-white rounded-full flex items-center justify-center mb-6 shadow-sm">
               <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2" /><line x1="12" y1="18" x2="12.01" y2="18" /></svg>
             </div>
             <h2 className="text-2xl font-black text-white mb-3 tracking-tight">Mobile Only Feature</h2>

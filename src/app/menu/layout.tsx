@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Shop | KLOYH — Apparel, denim & accessories",
+  title: "Shop | ORBT — Apparel, denim & accessories",
   description:
-    "Shop the KLOYH collection. Contemporary clothing, denim, dresses, and accessories with pan-India shipping.",
+    "Shop the ORBT collection. Contemporary clothing, denim, dresses, and accessories with pan-India shipping.",
   keywords: [
-    "kloyh shop",
-    "kloyh clothing",
+    "orbt shop",
+    "orbt clothing",
     "buy clothes online india",
     "womens wear",
     "mens wear",
@@ -15,8 +15,8 @@ export const metadata: Metadata = {
     canonical: "/menu",
   },
   openGraph: {
-    title: "Shop | KLOYH",
-    description: "Browse the latest KLOYH drop and ship nationwide.",
+    title: "Shop | ORBT",
+    description: "Browse the latest ORBT drop and ship nationwide.",
     url: "/menu",
   },
 };

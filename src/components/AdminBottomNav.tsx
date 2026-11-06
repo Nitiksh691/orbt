@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, ShoppingBag, Utensils, Settings, BarChart2, GripHorizontal, ChevronRight, ChevronLeft } from "lucide-react";
+import { LayoutDashboard, ShoppingBag, Shirt, Settings, BarChart2, GripHorizontal, ChevronRight, ChevronLeft } from "lucide-react";
 
 export default function AdminBottomNav() {
   const pathname = usePathname();
@@ -74,7 +74,7 @@ export default function AdminBottomNav() {
   const links = [
     { href: "/admin", icon: LayoutDashboard, label: "Dash" },
     { href: "/admin/orders", icon: ShoppingBag, label: "Orders" },
-    { href: "/admin/menu", icon: Utensils, label: "Menu" },
+    { href: "/admin/menu", icon: Shirt, label: "Products" },
     { href: "/admin/analytics", icon: BarChart2, label: "Stats" },
     { href: "/admin/settings", icon: Settings, label: "Settings" },
   ];

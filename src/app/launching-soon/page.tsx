@@ -123,7 +123,7 @@ export default function LaunchingSoonPage() {
             boxShadow: "0 0 12px #38BDF8", animation: "pulse 2s infinite"
           }} />
           <span style={{ fontSize: "0.75rem", fontWeight: 800, textTransform: "uppercase", letterSpacing: "2px", color: "#E2E8F0" }}>
-            KLOYH
+            ORBT
           </span>
         </div>
 

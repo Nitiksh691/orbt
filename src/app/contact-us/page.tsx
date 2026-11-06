@@ -3,13 +3,13 @@ import Link from "next/link";
 import { Phone, Mail, MessageCircle, ArrowRight, FileText, Shield, Truck, RefreshCcw } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Contact Us — KLOYH",
-  description: "Get in touch with KLOYH for order support, shipping queries, payment issues, and general questions.",
+  title: "Contact Us — ORBT",
+  description: "Get in touch with ORBT for order support, shipping queries, payment issues, and general questions.",
 };
 
 export default function ContactUsPage() {
   return (
-    <div style={{ background: "#ffffff", minHeight: "100vh", paddingBottom: "100px" }}>
+    <div style={{ minHeight: "100vh", paddingBottom: "100px" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap');
 
@@ -21,7 +21,8 @@ export default function ContactUsPage() {
 
         /* Hero */
         .cu-hero {
-          background: linear-gradient(160deg, #0A0F2E 0%, #0135FB 100%);
+          background: #000000;
+          border-bottom: 1px solid rgba(255,255,255,0.1);
           padding: 64px 24px 80px;
           text-align: center;
           position: relative;
@@ -32,7 +33,7 @@ export default function ContactUsPage() {
           position: absolute;
           bottom: -40px; left: 0; right: 0;
           height: 80px;
-          background: #ffffff;
+          background: #080808;
           border-radius: 50% 50% 0 0 / 100% 100% 0 0;
         }
         .cu-hero-icon {
@@ -76,17 +77,16 @@ export default function ContactUsPage() {
           align-items: center;
           gap: 18px;
           padding: 20px 22px;
-          background: #fff;
-          border: 1.5px solid #E8ECF4;
-          border-radius: 18px;
+          background: #0F0F0F;
+          border: 1px solid rgba(255,255,255,0.1);
+          border-radius: 4px;
           text-decoration: none;
-          color: inherit;
-          box-shadow: 0 2px 12px rgba(1, 53, 251, 0.05);
+          color: #F4F4F2;
           transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .cu-method:hover {
-          border-color: #0135FB;
-          box-shadow: 0 8px 28px rgba(1, 53, 251, 0.12);
+          border-color: rgba(255,255,255,0.32);
+          background: #171717;
           transform: translateY(-2px);
         }
         .cu-method-icon {
@@ -98,7 +98,7 @@ export default function ContactUsPage() {
         .cu-method-label {
           font-size: 0.68rem;
           font-weight: 800;
-          color: #94A3B8;
+          color: #9A9A96;
           text-transform: uppercase;
           letter-spacing: 1px;
           margin-bottom: 3px;
@@ -107,20 +107,21 @@ export default function ContactUsPage() {
           font-size: 1.05rem;
           font-weight: 800;
           line-height: 1.2;
+          color: #F4F4F2;
         }
         .cu-method-sub {
           font-size: 0.78rem;
-          color: #94A3B8;
+          color: #9A9A96;
           margin-top: 3px;
           font-weight: 500;
         }
         .cu-method-arrow {
           margin-left: auto;
-          color: #CBD5E1;
+          color: #6E6E6A;
           transition: color 0.2s, transform 0.2s;
         }
         .cu-method:hover .cu-method-arrow {
-          color: #0135FB;
+          color: #F4F4F2;
           transform: translateX(3px);
         }
 
@@ -128,7 +129,7 @@ export default function ContactUsPage() {
         .cu-section-label {
           font-size: 0.7rem;
           font-weight: 800;
-          color: #94A3B8;
+          color: #9A9A96;
           text-transform: uppercase;
           letter-spacing: 1.5px;
           margin: 36px 0 14px;
@@ -145,27 +146,28 @@ export default function ContactUsPage() {
           align-items: center;
           gap: 10px;
           padding: 14px 16px;
-          background: #F8FAFF;
-          border: 1.5px solid #E8ECF4;
-          border-radius: 14px;
+          background: #0F0F0F;
+          border: 1px solid rgba(255,255,255,0.1);
+          border-radius: 4px;
           text-decoration: none;
-          color: #475569;
+          color: #C9C9C5;
           font-size: 0.85rem;
           font-weight: 700;
           transition: all 0.2s;
         }
         .cu-policy-btn:hover {
-          background: #EEF3FF;
-          border-color: #0135FB;
-          color: #0135FB;
+          background: #171717;
+          border-color: rgba(255,255,255,0.32);
+          color: #F4F4F2;
         }
         .cu-policy-btn svg { flex-shrink: 0; }
 
         /* CTA banner */
         .cu-cta {
           margin-top: 40px;
-          background: linear-gradient(135deg, #0A0F2E, #0135FB);
-          border-radius: 22px;
+          background: #000000;
+          border: 1px solid rgba(255,255,255,0.12);
+          border-radius: 4px;
           padding: 36px 28px;
           text-align: center;
           color: #fff;
@@ -192,10 +194,10 @@ export default function ContactUsPage() {
           display: inline-flex;
           align-items: center;
           gap: 8px;
-          background: #fff;
-          color: #0135FB;
+          background: #F4F4F2;
+          color: #0A0A0A;
           padding: 13px 28px;
-          border-radius: 12px;
+          border-radius: 99px;
           font-weight: 900;
           text-decoration: none;
           font-size: 0.95rem;

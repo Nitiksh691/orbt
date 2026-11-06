@@ -107,29 +107,37 @@ export default function ProfilePage() {
     }
   };
 
-  if (loading || !user) return <div style={{ minHeight: "60vh" }}></div>;
+  if (loading || !user) {
+    return (
+      <div style={{ minHeight: "70vh", background: "#080808", color: "#F4F4F2", display: "grid", placeItems: "center", padding: "56px 20px" }}>
+        <p style={{ margin: 0, color: "#A8A8A4", fontSize: "0.78rem", fontWeight: 800, letterSpacing: "0.18em", textTransform: "uppercase" }}>
+          Loading account…
+        </p>
+      </div>
+    );
+  }
 
   const joinDate = profile?.createdAt ? new Date(profile.createdAt).toLocaleDateString(undefined, { month: 'long', year: 'numeric' }) : "Recently";
 
   return (
-    <div style={{ background: "var(--bg-cream)", minHeight: "calc(100vh - 68px)", paddingBottom: "100px" }}>
+    <div style={{ minHeight: "calc(100vh - 68px)", paddingBottom: "100px" }}>
       
       {/* Cover Banner */}
-      <div style={{ 
-        height: "200px", 
-        background: "linear-gradient(135deg, var(--primary) 0%, #2A55FF 100%)",
+      <div style={{
+        height: "180px",
+        background: "#000000",
+        borderBottom: "1px solid rgba(255,255,255,0.12)",
         position: "relative",
         overflow: "hidden"
       }}>
-        {/* Decorative elements in banner */}
-        <div style={{ position: "absolute", top: -50, right: -20, width: 200, height: 200, borderRadius: "50%", background: "rgba(255,255,255,0.1)" }} />
-        <div style={{ position: "absolute", bottom: -80, left: 40, width: 150, height: 150, borderRadius: "50%", background: "rgba(255,255,255,0.1)" }} />
+        <div style={{ position: "absolute", top: -50, right: -20, width: 200, height: 200, borderRadius: "50%", background: "rgba(255,255,255,0.06)" }} />
+        <div style={{ position: "absolute", bottom: -80, left: 40, width: 150, height: 150, borderRadius: "50%", background: "rgba(255,255,255,0.06)" }} />
       </div>
 
       <div className="otw-container" style={{ maxWidth: "800px", marginTop: "-60px", position: "relative", zIndex: 10 }}>
         
         {/* Main Profile Card */}
-        <div className="otw-card" style={{ padding: "0 0 24px 0", marginBottom: "24px", overflow: "visible" }}>
+        <div className="otw-card" style={{ padding: "0 0 24px 0", marginBottom: "24px", overflow: "visible", background: "#0F0F0F", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "4px" }}>
           
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", padding: "0 32px" }}>
             
@@ -139,7 +147,7 @@ export default function ProfilePage() {
               display: "flex", alignItems: "center", justifyContent: "center",
               border: "5px solid white", boxShadow: "0 4px 14px rgba(0,0,0,0.1)",
               marginTop: "-40px", overflow: "hidden", position: "relative",
-              color: "var(--primary)", fontSize: "3rem", fontWeight: 800
+              color: "#0A0A0A", fontSize: "3rem", fontWeight: 800
             }}>
               {profile?.image ? (
                 <img src={profile.image} alt="Profile" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
@@ -165,33 +173,33 @@ export default function ProfilePage() {
 
           {/* User Details */}
           <div style={{ padding: "16px 32px 0" }}>
-            <h1 style={{ fontSize: "1.8rem", fontWeight: 900, marginBottom: "4px", color: "var(--text-dark)", display: "flex", alignItems: "center", gap: "8px" }}>
+            <h1 style={{ fontSize: "1.8rem", fontWeight: 900, marginBottom: "4px", color: "#F4F4F2", display: "flex", alignItems: "center", gap: "8px" }}>
               {profile?.name || "User"}
-              <span style={{ background: "var(--accent-2)", color: "var(--primary)", fontSize: "0.7rem", padding: "4px 8px", borderRadius: "10px", fontWeight: 800, textTransform: "uppercase" }}>
-                {profile?.role || "Foodie"}
+              <span style={{ background: "#F4F4F2", color: "#0A0A0A", fontSize: "0.7rem", padding: "4px 8px", borderRadius: "999px", fontWeight: 800, textTransform: "uppercase" }}>
+                {profile?.role || "ORBT Member"}
               </span>
             </h1>
-            
-            <p style={{ color: "var(--text-muted)", fontSize: "1rem", marginBottom: "16px", fontWeight: 500 }}>
+
+            <p style={{ color: "#A8A8A4", fontSize: "1rem", marginBottom: "16px", fontWeight: 500 }}>
               +91 {profile?.phone || phone}
             </p>
 
             <div style={{ display: "flex", flexWrap: "wrap", gap: "16px", marginBottom: "20px" }}>
               {profile?.college && (
-                <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "var(--text-mid)", fontSize: "0.9rem", fontWeight: 600 }}>
-                  <MapPin size={16} color="var(--primary)" /> {profile.college} {profile?.year ? `• ${profile.year}` : ""}
+                <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "#C9C9C5", fontSize: "0.9rem", fontWeight: 600 }}>
+                  <MapPin size={16} color="#F4F4F2" /> {profile.college} {profile?.year ? `• ${profile.year}` : ""}
                 </div>
               )}
-              <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "var(--text-mid)", fontSize: "0.9rem", fontWeight: 600 }}>
-                <Calendar size={16} color="var(--primary)" /> Joined {joinDate}
+              <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "#C9C9C5", fontSize: "0.9rem", fontWeight: 600 }}>
+                <Calendar size={16} color="#F4F4F2" /> Joined {joinDate}
               </div>
             </div>
 
             {/* Stats Row */}
-            <div style={{ display: "flex", gap: "24px", paddingTop: "16px", borderTop: "1px solid #F1F5F9" }}>
+            <div style={{ display: "flex", gap: "24px", paddingTop: "16px", borderTop: "1px solid rgba(255,255,255,0.1)" }}>
               <div>
-                <div style={{ fontSize: "1.2rem", fontWeight: 900, color: "var(--text-dark)" }}>{orders.length}</div>
-                <div style={{ fontSize: "0.8rem", color: "var(--text-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.5px" }}>Orders</div>
+                <div style={{ fontSize: "1.2rem", fontWeight: 900, color: "#F4F4F2" }}>{orders.length}</div>
+                <div style={{ fontSize: "0.8rem", color: "#A8A8A4", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.5px" }}>Orders</div>
               </div>
               {/* Could add more stats here in the future like 'Reviews' or 'Favorites' */}
             </div>
@@ -199,27 +207,27 @@ export default function ProfilePage() {
         </div>
 
         {/* Custom Tabs */}
-        <div style={{ display: "flex", gap: "8px", marginBottom: "24px", padding: "4px", background: "white", borderRadius: "16px", boxShadow: "0 2px 10px rgba(0,0,0,0.03)" }}>
-          <button 
+        <div style={{ display: "flex", gap: "8px", marginBottom: "24px", padding: "4px", background: "#0F0F0F", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "4px" }}>
+          <button
             onClick={() => { setActiveTab("info"); setIsEditing(false); }}
-            style={{ 
-              flex: 1, padding: "12px", borderRadius: "12px", border: "none",
+            style={{
+              flex: 1, padding: "12px", borderRadius: "4px", border: "none",
               display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
               fontWeight: 700, fontSize: "0.95rem", cursor: "pointer", transition: "all 0.2s",
-              background: activeTab === "info" ? "var(--accent-2)" : "transparent",
-              color: activeTab === "info" ? "var(--primary)" : "var(--text-muted)",
+              background: activeTab === "info" ? "#F4F4F2" : "transparent",
+              color: activeTab === "info" ? "#0A0A0A" : "#A8A8A4",
             }}
           >
             <User size={18} /> About
           </button>
-          <button 
+          <button
             onClick={() => { setActiveTab("orders"); setIsEditing(false); }}
-            style={{ 
-              flex: 1, padding: "12px", borderRadius: "12px", border: "none",
+            style={{
+              flex: 1, padding: "12px", borderRadius: "4px", border: "none",
               display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
               fontWeight: 700, fontSize: "0.95rem", cursor: "pointer", transition: "all 0.2s",
-              background: activeTab === "orders" ? "var(--accent-2)" : "transparent",
-              color: activeTab === "orders" ? "var(--primary)" : "var(--text-muted)",
+              background: activeTab === "orders" ? "#F4F4F2" : "transparent",
+              color: activeTab === "orders" ? "#0A0A0A" : "#A8A8A4",
             }}
           >
             <Package size={18} /> Order History
@@ -230,7 +238,7 @@ export default function ProfilePage() {
         {activeTab === "info" && (
           <div className="animate-fade-up">
             {isEditing ? (
-              <div className="otw-card" style={{ padding: "32px" }}>
+              <div className="otw-card" style={{ padding: "32px", background: "#0F0F0F", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "4px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
                   <h2 style={{ fontSize: "1.3rem", fontWeight: 800 }}>Edit Profile Information</h2>
                   <button onClick={() => setIsEditing(false)} className="otw-btn otw-btn-ghost" style={{ padding: "6px 12px", fontSize: "0.85rem" }}>Cancel</button>
@@ -248,11 +256,11 @@ export default function ProfilePage() {
                   </div>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
                     <div>
-                      <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 700, color: "var(--text-mid)", marginBottom: "8px", textTransform: "uppercase" }}>Institution</label>
+                      <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 700, color: "#C9C9C5", marginBottom: "8px", textTransform: "uppercase" }}>City / Base</label>
                       <input type="text" className="otw-input" value={college} onChange={e => setCollege(e.target.value)} placeholder="e.g. IIT Delhi" />
                     </div>
                     <div>
-                      <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 700, color: "var(--text-mid)", marginBottom: "8px", textTransform: "uppercase" }}>Year of Study</label>
+                      <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 700, color: "#C9C9C5", marginBottom: "8px", textTransform: "uppercase" }}>Fit Preference</label>
                       <select className="otw-input" value={year} onChange={e => setYear(e.target.value)}>
                         <option value="">Select Year</option>
                         <option value="1st Year">1st Year</option>
@@ -271,8 +279,8 @@ export default function ProfilePage() {
                 </form>
               </div>
             ) : (
-              <div className="otw-card" style={{ padding: "32px" }}>
-                <h3 style={{ fontSize: "1.1rem", fontWeight: 800, marginBottom: "20px", color: "var(--text-dark)" }}>Personal Information</h3>
+              <div className="otw-card" style={{ padding: "32px", background: "#0F0F0F", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "4px" }}>
+                <h3 style={{ fontSize: "1.1rem", fontWeight: 800, marginBottom: "20px", color: "#F4F4F2" }}>Personal Information</h3>
                 
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "24px" }}>
                   <div>
@@ -284,8 +292,8 @@ export default function ProfilePage() {
                     <div style={{ fontSize: "1.05rem", fontWeight: 600, color: "var(--text-dark)" }}>+91 {profile?.phone || phone}</div>
                   </div>
                   <div>
-                    <div style={{ fontSize: "0.8rem", color: "var(--text-muted)", fontWeight: 700, textTransform: "uppercase", marginBottom: "4px" }}>Institution</div>
-                    <div style={{ fontSize: "1.05rem", fontWeight: 600, color: "var(--text-dark)" }}>{profile?.college || "Not specified"}</div>
+                    <div style={{ fontSize: "0.8rem", color: "#9A9A96", fontWeight: 700, textTransform: "uppercase", marginBottom: "4px" }}>City / Base</div>
+                    <div style={{ fontSize: "1.05rem", fontWeight: 600, color: "#F4F4F2" }}>{profile?.college || "Not specified"}</div>
                   </div>
                   <div>
                     <div style={{ fontSize: "0.8rem", color: "var(--text-muted)", fontWeight: 700, textTransform: "uppercase", marginBottom: "4px" }}>Year</div>
@@ -316,32 +324,32 @@ export default function ProfilePage() {
                 <p style={{ fontWeight: 600 }}>Loading your orders...</p>
               </div>
             ) : orders.length === 0 ? (
-              <div className="otw-card" style={{ padding: "60px 20px", textAlign: "center" }}>
-                <div style={{ fontSize: "4rem", marginBottom: "16px" }}>🛍️</div>
-                <h3 style={{ fontSize: "1.3rem", fontWeight: 800, marginBottom: "8px" }}>No orders yet</h3>
-                <p style={{ color: "var(--text-muted)", marginBottom: "24px" }}>Hungry? Let's fix that right away.</p>
-                <Link href="/menu" className="otw-btn otw-btn-primary" style={{ padding: "12px 24px", borderRadius: "12px" }}>Browse Menu</Link>
+              <div className="otw-card" style={{ padding: "60px 20px", textAlign: "center", background: "#0F0F0F", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "4px" }}>
+                <div style={{ fontSize: "4rem", marginBottom: "16px" }}>✦</div>
+                <h3 style={{ fontSize: "1.3rem", fontWeight: 800, marginBottom: "8px", color: "#F4F4F2" }}>No orders yet</h3>
+                <p style={{ color: "#A8A8A4", marginBottom: "24px" }}>Your next drop is waiting.</p>
+                <Link href="/menu" className="otw-btn otw-btn-primary" style={{ padding: "12px 24px", borderRadius: "99px" }}>Browse Drops</Link>
               </div>
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
                 {orders.map(order => (
-                  <div key={order.id} className="otw-card" style={{ padding: "20px", transition: "transform 0.2s", cursor: "pointer" }} onClick={() => router.push(`/track/${order.id}`)}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "16px", borderBottom: "1px solid #F1F5F9", paddingBottom: "16px" }}>
+                  <div key={order.id} className="otw-card" style={{ padding: "20px", transition: "transform 0.2s", cursor: "pointer", background: "#0F0F0F", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "4px" }} onClick={() => router.push(`/track/${order.id}`)}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "16px", borderBottom: "1px solid rgba(255,255,255,0.1)", paddingBottom: "16px" }}>
                       <div>
                         <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "6px" }}>
-                          <span style={{ fontWeight: 800, fontSize: "1.1rem" }}>Order #{order.id.slice(-6).toUpperCase()}</span>
+                          <span style={{ fontWeight: 800, fontSize: "1.1rem", color: "#F4F4F2" }}>Order #{order.id.slice(-6).toUpperCase()}</span>
                           {getStatusBadge(order.status)}
                         </div>
-                        <div style={{ display: "flex", alignItems: "center", gap: "12px", fontSize: "0.8rem", color: "var(--text-muted)" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "12px", fontSize: "0.8rem", color: "#A8A8A4" }}>
                           <span style={{ display: "flex", alignItems: "center", gap: "4px" }}><Clock size={14}/> {new Date(order.createdAt).toLocaleDateString()} at {new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                         </div>
                       </div>
-                      <div style={{ fontWeight: 900, fontSize: "1.2rem", color: "var(--primary)" }}>
-                        ₹{order.total}
+                      <div style={{ fontWeight: 900, fontSize: "1.2rem", color: "#F4F4F2" }}>
+                        ₹{order.total.toLocaleString("en-IN")}
                       </div>
                     </div>
 
-                    <div style={{ fontSize: "0.9rem", color: "var(--text-dark)", fontWeight: 500, marginBottom: "16px" }}>
+                    <div style={{ fontSize: "0.9rem", color: "#C9C9C5", fontWeight: 500, marginBottom: "16px" }}>
                       {order.items.map(i => `${i.quantity}x ${i.item.name}`).join(", ")}
                     </div>
                     

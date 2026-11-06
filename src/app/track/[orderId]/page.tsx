@@ -226,13 +226,13 @@ export default function TrackOrderPage(props: { params: Promise<{ orderId: strin
 
   /* Shared card style */
   const cardStyle: React.CSSProperties = {
-    background: "#fff",
-    borderRadius: "16px",
-    boxShadow: "0 2px 16px rgba(1,53,251,0.06)",
+    background: "#0F0F0F",
+    border: "1px solid rgba(255, 255, 255, 0.1)",
+    borderRadius: "2px",
   };
 
   return (
-    <div style={{ background: "#F5F7FF", minHeight: "100vh", color: "#0A0F2E", fontFamily: "inherit" }}>
+    <div style={{ background: "#080808", minHeight: "100vh", color: "#F4F4F2", fontFamily: "inherit" }}>
       {/* Push notifications for active orders */}
       <PushNotificationSetup
         orderId={orderId}
@@ -258,15 +258,14 @@ export default function TrackOrderPage(props: { params: Promise<{ orderId: strin
 
       {/* ── Hero Status Banner ── */}
       <div style={{
-        background: isCancelled
-          ? "linear-gradient(135deg, #fef2f2, #fee2e2)"
-          : `linear-gradient(135deg, #0135FB 0%, #0060D6 60%, #0075FF 100%)`,
-        padding: "16px 20px",
+        background: isCancelled ? "#FEE2E2" : "#000000",
+        borderBottom: "1px solid rgba(255,255,255,0.12)",
+        padding: "22px 20px",
       }}>
         <div style={{ maxWidth: 680, margin: "0 auto" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <div style={{ fontSize: "1.6rem", background: "rgba(255,255,255,0.15)", width: 44, height: 44, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <div style={{ fontSize: "1.6rem", background: "#171717", border: "1px solid rgba(255,255,255,0.12)", width: 44, height: 44, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                 {isCancelled ? "❌" : currentStep?.icon || "📦"}
               </div>
               <div>
@@ -582,7 +581,7 @@ export default function TrackOrderPage(props: { params: Promise<{ orderId: strin
           <div style={{ fontSize: "0.7rem", color: "#6B7280", letterSpacing: "1px", textTransform: "uppercase", fontWeight: 700, marginBottom: "14px" }}>Your Items</div>
 
           {/* Delivery address */}
-          <div style={{ marginBottom: 14, padding: "12px 14px", background: "#F5F7FF", borderRadius: "10px" }}>
+          <div style={{ marginBottom: 14, padding: "12px 14px", background: "#171717", border: "1px solid #242424", borderRadius: "10px" }}>
             <div style={{ display: "flex", alignItems: "flex-start", gap: 9, fontSize: "0.85rem" }}>
               <MapPin size={15} color="#0135FB" style={{ flexShrink: 0, marginTop: 2 }} />
               <div>
@@ -708,7 +707,7 @@ export default function TrackOrderPage(props: { params: Promise<{ orderId: strin
             Need help?
           </div>
           <p style={{ color: "#6B7280", fontSize: "0.85rem", lineHeight: 1.6, marginBottom: "14px" }}>
-            {COMPANY_NAME} is bootstrapped and serving fresh food daily. Call us for any enquiry about your order.
+            ORBT is a limited-run clothing studio. Call us for any enquiry about your order.
           </p>
           <a href={SUPPORT_TEL} style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "#0135FB", color: "#fff", padding: "11px 20px", borderRadius: "10px", fontWeight: 800, textDecoration: "none", fontSize: "0.88rem", boxShadow: "0 4px 0 #0028D4" }}>
             <Phone size={16} /> Call {SUPPORT_PHONE_DISPLAY}

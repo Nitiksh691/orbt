@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import PolicyLayout from "@/components/PolicyLayout";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy — KLOYH",
-  description: "Privacy Policy for KLOYH.",
+  title: "Privacy Policy — ORBT",
+  description: "Privacy Policy for ORBT.",
 };
 
 export default function PrivacyPolicyPage() {

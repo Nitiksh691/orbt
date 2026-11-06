@@ -95,7 +95,7 @@ export async function PATCH(req: NextRequest, props: { params: Promise<{ id: str
     // Trigger WhatsApp thank you message if status changed to delivered
     if (status === "delivered" && order.userPhone) {
       const { sendWhatsAppMessage } = await import("@/lib/whatsapp");
-      const message = `Thank you for shopping KLOYH. We hope you love your pieces. Wear it well.`;
+      const message = `Thank you for shopping ORBT. We hope you love your pieces. Wear it well.`;
       // Run asynchronously without blocking the response
       sendWhatsAppMessage(order.userPhone, message).catch(console.error);
     }

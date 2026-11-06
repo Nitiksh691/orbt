@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import PolicyLayout from "@/components/PolicyLayout";
 
 export const metadata: Metadata = {
-  title: "Cancellation & Refund Policy — KLOYH",
-  description: "Cancellation & Refund Policy for KLOYH.",
+  title: "Cancellation & Refund Policy — ORBT",
+  description: "Cancellation & Refund Policy for ORBT.",
 };
 
 export default function CancellationRefundPage() {
